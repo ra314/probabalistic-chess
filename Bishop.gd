@@ -34,15 +34,12 @@ func set_pos_to_check():
 func move_SW():
 	x-=1
 	y+=1
-
 func move_SE():
 	x+=1
 	y+=1
-
 func move_NW():
 	x-=1
 	y-=1
-
 func move_NE():
 	x+=1
 	y-=1
