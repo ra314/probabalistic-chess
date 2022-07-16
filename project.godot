@@ -25,6 +25,11 @@ _global_script_classes=[ {
 "path": "res://King.gd"
 }, {
 "base": "Node2D",
+"class": "Pawn",
+"language": "GDScript",
+"path": "res://Pawn.gd"
+}, {
+"base": "Node2D",
 "class": "Queen",
 "language": "GDScript",
 "path": "res://Queen.gd"
@@ -38,6 +43,7 @@ _global_script_class_icons={
 "Bishop": "",
 "Board": "",
 "King": "",
+"Pawn": "",
 "Queen": "",
 "Rook": ""
 }

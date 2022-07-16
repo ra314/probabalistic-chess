@@ -3,12 +3,12 @@ class_name King
 
 var board: Board
 var grid_pos := Vector2()
+var is_white: bool
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	board = get_parent()
 	pass # Replace with function body.
-
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []

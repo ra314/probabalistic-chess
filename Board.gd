@@ -14,6 +14,7 @@ func debug():
 	print($Bishop.generate_legal_moves())
 	print($Queen.generate_legal_moves())
 	print($King.generate_legal_moves())
+	print($Pawn.generate_legal_moves())
 
 func initialize_null_grid() -> Array:
 	grid = []

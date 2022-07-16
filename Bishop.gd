@@ -3,6 +3,7 @@ class_name Bishop
 
 var board: Board
 var grid_pos := Vector2()
+var is_white: bool
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
