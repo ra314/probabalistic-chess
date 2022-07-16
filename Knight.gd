@@ -1,14 +1,8 @@
 extends Piece
 class_name Knight
 
-var board: Board
-var grid_pos := Vector2()
-var is_white: bool
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	board = get_parent()
-
 	self.white_piece = load("res://Assets/White_Knight.png")
 	self.black_piece = load("res://Assets/Black_Knight.png")
 	
@@ -21,8 +15,9 @@ func generate_legal_moves() -> Array:
 		for y in [-2,-1,1,2]:
 			if abs(x) == abs(y):
 				continue
-			var pos_to_check := Vector2(x,y)
+			var pos_to_check := grid_pos + Vector2(x,y)
 			if board.is_in_grid(pos_to_check):
-				legal_moves.append(pos_to_check)
+				if !board.does_tile_have_ally(pos_to_check, self):
+					legal_moves.append(pos_to_check)
 	
 	return legal_moves
