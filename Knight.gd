@@ -1,5 +1,5 @@
 extends Node2D
-class_name King
+class_name Knight
 
 var board: Board
 var grid_pos := Vector2()
@@ -13,8 +13,10 @@ func _ready():
 func generate_legal_moves() -> Array:
 	var legal_moves := []
 	
-	for x in [-1,0,1]:
-		for y in [-1,0,1]:
+	for x in [-2,-1,1,2]:
+		for y in [-2,-1,1,2]:
+			if abs(x) == abs(y):
+				continue
 			var pos_to_check := Vector2(x,y)
 			if board.is_in_grid(pos_to_check):
 				legal_moves.append(pos_to_check)

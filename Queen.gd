@@ -21,8 +21,9 @@ func generate_legal_moves() -> Array:
 		call(method_name)
 		set_pos_to_check()
 		while board.is_in_grid(pos_to_check):
-			if board.get_tile(pos_to_check) == null:
-				legal_moves.append(pos_to_check)
+			legal_moves.append(pos_to_check)
+			if board.get_tile(pos_to_check) != null:
+				break
 			call(method_name)
 			set_pos_to_check()
 		x = 0

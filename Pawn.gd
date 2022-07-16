@@ -2,7 +2,7 @@ extends Node2D
 class_name Pawn
 
 var board: Board
-var grid_pos := Vector2(0,1)
+var grid_pos := Vector2()
 var is_white := true
 
 # Called when the node enters the scene tree for the first time.
