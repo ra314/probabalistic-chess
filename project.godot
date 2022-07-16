@@ -9,7 +9,7 @@
 config_version=4
 
 _global_script_classes=[ {
-"base": "Node2D",
+"base": "Piece",
 "class": "Bishop",
 "language": "GDScript",
 "path": "res://Bishop.gd"
@@ -19,30 +19,40 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://Board.gd"
 }, {
-"base": "Node2D",
+"base": "Piece",
 "class": "King",
 "language": "GDScript",
 "path": "res://King.gd"
 }, {
-"base": "Node2D",
+"base": "Piece",
 "class": "Knight",
 "language": "GDScript",
 "path": "res://Knight.gd"
 }, {
-"base": "Node2D",
+"base": "Piece",
 "class": "Pawn",
 "language": "GDScript",
 "path": "res://Pawn.gd"
 }, {
 "base": "Node2D",
+"class": "Piece",
+"language": "GDScript",
+"path": "res://Piece.gd"
+}, {
+"base": "Piece",
 "class": "Queen",
 "language": "GDScript",
 "path": "res://Queen.gd"
 }, {
-"base": "Node2D",
+"base": "Piece",
 "class": "Rook",
 "language": "GDScript",
 "path": "res://Rook.gd"
+}, {
+"base": "Node2D",
+"class": "Tile",
+"language": "GDScript",
+"path": "res://Tile.gd"
 } ]
 _global_script_class_icons={
 "Bishop": "",
@@ -50,8 +60,10 @@ _global_script_class_icons={
 "King": "",
 "Knight": "",
 "Pawn": "",
+"Piece": "",
 "Queen": "",
-"Rook": ""
+"Rook": "",
+"Tile": ""
 }
 
 [application]

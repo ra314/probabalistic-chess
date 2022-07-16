@@ -1,4 +1,4 @@
-extends Node2D
+extends Piece
 class_name Rook
 
 var board: Board
@@ -8,10 +8,12 @@ var is_white: bool
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	board = get_parent()
-	pass # Replace with function body.
+	
+	self.white_piece = load("res://Assets/White_Rook.png")
+	self.black_piece = load("res://Assets/Black_Rook.png")
+	
+	update_color(get_node(("Sprite")))
 
-var x: int
-var y: int
 var pos_to_check: Vector2
 func generate_legal_moves() -> Array:
 	var legal_moves := []

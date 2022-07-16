@@ -1,4 +1,4 @@
-extends Node2D
+extends Piece
 class_name Pawn
 
 var board: Board
@@ -8,6 +8,11 @@ var is_white := true
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	board = get_parent()
+
+	self.white_piece = load("res://Assets/White_Pawn.png")
+	self.black_piece = load("res://Assets/Black_Pawn.png")
+	
+	update_color(get_node(("Sprite")))
 
 const WHITE_STARTING_ROW = 1
 const BLACK_STARTING_ROW = 6
