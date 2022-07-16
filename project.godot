@@ -10,17 +10,30 @@ config_version=4
 
 _global_script_classes=[ {
 "base": "Node2D",
+"class": "Bishop",
+"language": "GDScript",
+"path": "res://Bishop.gd"
+}, {
+"base": "Node2D",
 "class": "Board",
 "language": "GDScript",
 "path": "res://Board.gd"
+}, {
+"base": "Node2D",
+"class": "Rook",
+"language": "GDScript",
+"path": "res://Rook.gd"
 } ]
 _global_script_class_icons={
-"Board": ""
+"Bishop": "",
+"Board": "",
+"Rook": ""
 }
 
 [application]
 
 config/name="Probabilistic Chess"
+run/main_scene="res://Board.tscn"
 config/icon="res://icon.png"
 
 [physics]
