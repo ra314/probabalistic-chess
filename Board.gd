@@ -25,8 +25,7 @@ func get_tile(pos: Vector2):
 	return grid[pos[0]][pos[1]]
 
 func is_in_grid(pos: Vector2) -> bool:
-	for i in range(2):
-		var num = pos[i]
+	for num in [pos.x, pos.y]:
 		if num<0 or num>=BOARD_SIZE:
 			return false
 	return true
