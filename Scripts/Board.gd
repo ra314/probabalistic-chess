@@ -258,13 +258,20 @@ func select_random_and_remove(array):
 	array.remove(index)
 	return selection
 
-var mcts_node = {"children": [], "wins": 0,\
-				 "total": 0, "move": [], "kills":"", "legal_moves_left": []}
+var mcts_node = {"children": [], "wins": 0, "parent": null, "total": 0,\
+				 "move": [], "killed":null, "legal_moves_left": []}
+							# killed is killed_piece
 const MAX_ITERS := 1
 
 func does_move_kill(start_pos: Vector2, end_pos: Vector2) -> bool:
 	var piece_to_move = get_piece_from_grid_pos(start_pos)
 	return does_pos_have_enemy(end_pos, piece_to_move)
+
+# Performs null_check
+func is_king(piece: Piece):
+	if piece != null:
+		return piece.prefix == "K"
+	return false
 
 # Returns the best move in algebraic notation
 func monte_carlo_search() -> String:
@@ -283,9 +290,9 @@ func monte_carlo_search() -> String:
 	while num_iters < MAX_ITERS:
 		num_iters += 1
 		var curr_node = mcts_tree
-		# Go deeper
+		# Rollout
 		if len(curr_node["children"]) == 0:
-			while !(curr_node["kills"]=="K"):
+			while !is_king(curr_node["killed"]):
 				var target_pieces: Array = all_pieces[is_white_turn].keys()
 				var legal_moves: Array
 				for piece in target_pieces:
@@ -294,10 +301,11 @@ func monte_carlo_search() -> String:
 				curr_node["legal_moves"] = legal_moves
 				var selected_move = select_random_and_remove(legal_moves)
 				var new_node = mcts_node.duplicate(true)
+				new_node["parent"] = curr_node
 				new_node["move"] = selected_move
 				if does_move_kill(selected_move[0], selected_move[1]):
 					var killed_piece = fake_board.get_piece_from_grid_pos(selected_move[1])
-					new_node["kills"] = killed_piece.prefix
+					new_node["killed"] = killed_piece
 					killed_piece.get_node("Sprite").modulate = Color(0.5, 0.5, 0.5, 0.5)
 					all_pieces[killed_piece.is_white].erase(killed_piece)
 				
@@ -309,7 +317,21 @@ func monte_carlo_search() -> String:
 				# DEBUG
 				print(grid_pos_to_algebraic_pos(curr_node["move"][0]), \
 					grid_pos_to_algebraic_pos(curr_node["move"][1]))
-				yield(get_tree().create_timer(0.5), "timeout")
+				yield(get_tree().create_timer(0.1), "timeout")
+			
+			# Roll back
+			while curr_node != mcts_tree:
+				fake_board.get_piece_from_grid_pos(curr_node["move"][1])\
+							.place_on(curr_node["move"][0])
+				if curr_node["killed"]:
+					var spawn_square = curr_node["move"][1]
+					var revived = curr_node["killed"]
+					revived.get_node("Sprite").modulate = Color(1,1,1,1)
+					all_pieces[revived.is_white][revived] = true
+					fake_board.pieces_grid[spawn_square.x][spawn_square.y] = revived
+				curr_node = curr_node["parent"]
+				yield(get_tree().create_timer(0.1), "timeout")
 	
 	#print(mcts_tree)
+	print("DONE WITH MCTS")
 	return "a1a2"
