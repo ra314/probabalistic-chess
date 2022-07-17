@@ -1,8 +1,8 @@
 extends Node2D
 class_name Board
 
-var pieces_grid
-var tiles_grid
+var pieces_grid: Array
+var tiles_grid: Array
 const BOARD_SIZE = 8
 const BOARD_LETTERS = "abcdefgh"
 
@@ -15,6 +15,7 @@ func _ready():
 	$Button.connect("button_up", self, "debug")
 
 func debug():
+	monte_carlo_search()
 	for algebraic_pos in "a1 b1 c1 d1 e1 a2".split(" "):
 		print(get_piece_from_algebraic_pos(algebraic_pos))
 		print(get_piece_from_algebraic_pos(algebraic_pos).grid_pos)
@@ -95,7 +96,7 @@ static func initialize_empty_grid(board_size: int) -> Array:
 	var grid = []
 	for x in range(board_size):
 		grid.append([])
-		for y in range(board_size):
+		for _y in range(board_size):
 			grid[x].append(null)
 	return grid
 
@@ -154,10 +155,41 @@ static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 	assert(len(pos)==2)
 	assert(pos[1].is_valid_integer())
 	
-	var new_pos: Vector2
+	var new_pos := Vector2()
 	new_pos.x = ord(pos.to_lower()[0])-ord('a')
 	new_pos.y = BOARD_SIZE - int(pos[1])
 	return new_pos
 
 static func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
 	return char(pos.x+ord('a')) + str(BOARD_SIZE - int(pos.y))
+
+func get_pieces() -> Array:
+	var pieces = []
+	for x in range(BOARD_SIZE):
+		for y in range(BOARD_SIZE):
+			var piece: Piece = pieces_grid[x][y]
+			if piece != null:
+				pieces.append(piece)
+	return pieces
+
+var BOARD := load("res://Scenes/Board.tscn")
+func init_fake() -> Board:
+	var pieces_grid_copy := pieces_grid.duplicate(true)
+	var fake_board = BOARD.instance()
+	fake_board.pieces_grid = pieces_grid_copy
+	return fake_board
+
+# Returns the best move in algebraic notation
+func monte_carlo_search() -> String:
+	var fake_board: Board = init_fake()
+	var white_pieces := []
+	var black_pieces := []
+	
+	for piece in fake_board.get_pieces():
+		if piece.is_white:
+			white_pieces.append(piece)
+		else:
+			black_pieces.append(piece)
+	
+	print(white_pieces)
+	return "a1a2"
