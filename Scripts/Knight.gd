@@ -7,6 +7,7 @@ func _ready():
 	self.black_piece = load("res://Assets/Black_Knight.png")
 	
 	update_color(get_node(("Sprite")))
+	value = 3
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []

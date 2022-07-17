@@ -7,6 +7,7 @@ func _ready():
 	self.black_piece = load("res://Assets/Black_Pawn.png")
 	
 	update_color(get_node(("Sprite")))
+	value = 1
 
 const WHITE_STARTING_ROW = 6
 const BLACK_STARTING_ROW = 1

@@ -72,6 +72,16 @@ config/name="Probabilistic Chess"
 run/main_scene="res://Scenes/Board.tscn"
 config/icon="res://icon.png"
 
+[autoload]
+
+RNG="*res://Scripts/RNG.gd"
+
+[display]
+
+window/size/width=1920
+window/size/height=1080
+window/size/fullscreen=true
+
 [physics]
 
 common/enable_pause_aware_picking=true

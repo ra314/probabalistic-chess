@@ -7,6 +7,8 @@ func _ready():
 	self.black_piece = load("res://Assets/Black_King.png")
 	
 	update_color(get_node(("Sprite")))
+	# https://en.wikipedia.org/wiki/Chess_piece_relative_value
+	value = 4
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []

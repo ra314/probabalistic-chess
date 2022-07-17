@@ -7,6 +7,7 @@ func _ready():
 	self.black_piece = load("res://Assets/Black_Queen.png")
 	
 	update_color(get_node(("Sprite")))
+	value = 9
 
 var pos_to_check: Vector2
 func generate_legal_moves() -> Array:

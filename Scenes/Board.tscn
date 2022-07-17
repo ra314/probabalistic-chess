@@ -1,16 +1,35 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Scripts/Board.gd" type="Script" id=1]
 
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://Assets/Montserrat-Regular.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+size = 30
+font_data = SubResource( 1 )
+
 [node name="Board" type="Node2D"]
+position = Vector2( 448, 28 )
+scale = Vector2( 2, 2 )
 script = ExtResource( 1 )
 tile_color = Color( 0.47451, 0.282353, 0.223529, 1 )
 tile_color_alternate = Color( 0.364706, 0.196078, 0.192157, 1 )
 
 [node name="Button" type="Button" parent="."]
-margin_left = 724.0
-margin_top = 8.0
-margin_right = 841.0
-margin_bottom = 68.0
+margin_left = 617.0
+margin_top = -12.0
+margin_right = 734.0
+margin_bottom = 48.0
 
 [node name="Tiles" type="Node2D" parent="."]
+
+[node name="Label" type="Label" parent="."]
+margin_left = -223.0
+margin_top = -13.5
+margin_right = -183.0
+margin_bottom = 0.5
+custom_fonts/font = SubResource( 2 )
+text = "Min = x, Max = y
+Rolled a 2.
+Need >= 4"

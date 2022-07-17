@@ -8,9 +8,9 @@ const BOARD_LETTERS = "abcdefgh"
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pieces_grid = initialize_empty_grid()
+	pieces_grid = initialize_empty_grid(BOARD_SIZE)
 	intialize_pieces()
-	tiles_grid = initialize_empty_grid()
+	tiles_grid = initialize_empty_grid(BOARD_SIZE)
 	initialize_background_tiles()
 	$Button.connect("button_up", self, "debug")
 
@@ -43,7 +43,14 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 	undo_highlight()
 	
 	if was_pos_previously_available_for_movement(grid_pos):
-		get_piece_from_grid_pos(prev_selected_tile_pos).place_on(grid_pos)
+		var prev_selected_piece = get_piece_from_grid_pos(prev_selected_tile_pos)
+		if does_pos_have_enemy(grid_pos, prev_selected_piece):
+			var enemy = get_piece_from_grid_pos(grid_pos)
+			if prev_selected_piece.is_attack_successful(enemy):
+				enemy.die()
+				prev_selected_piece.place_on(grid_pos)
+		else:
+			prev_selected_piece.place_on(grid_pos)
 		highlighted_movement_tiles = []
 		return
 
@@ -61,7 +68,6 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 			highlighted_movement_tiles.append(tile)
 
 var TILE := load("res://Scenes/Tile.tscn")
-var board_offset: Vector2
 export(Color) var tile_color
 export(Color) var tile_color_alternate
 
@@ -70,7 +76,7 @@ func initialize_background_tiles() -> void:
 	for x in range(BOARD_SIZE):
 		for y in range(BOARD_SIZE):
 			var tile = TILE.instance()
-			tile.init(Vector2(x, y) + board_offset)
+			tile.init(Vector2(x, y))
 			
 			if !white:
 				tile.set_color(tile_color)
@@ -85,11 +91,11 @@ func initialize_background_tiles() -> void:
 		# Switches the tile color on a new row
 		white = !white
 
-func initialize_empty_grid() -> Array:
+static func initialize_empty_grid(board_size: int) -> Array:
 	var grid = []
-	for x in range(BOARD_SIZE):
+	for x in range(board_size):
 		grid.append([])
-		for y in range(BOARD_SIZE):
+		for y in range(board_size):
 			grid[x].append(null)
 	return grid
 
@@ -144,7 +150,7 @@ func is_in_grid(pos: Vector2) -> bool:
 			return false
 	return true
 
-func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
+static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 	assert(len(pos)==2)
 	assert(pos[1].is_valid_integer())
 	
@@ -153,5 +159,5 @@ func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 	new_pos.y = BOARD_SIZE - int(pos[1])
 	return new_pos
 
-func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
+static func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
 	return char(pos.x+ord('a')) + str(BOARD_SIZE - int(pos.y))
