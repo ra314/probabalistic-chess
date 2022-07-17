@@ -31,4 +31,4 @@ func move_SE():
 func move_NW():
 	pos_to_check += Vector2(-1,-1)
 func move_NE():
-	pos_to_check += Vector2(1,1)
+	pos_to_check += Vector2(1,-1)

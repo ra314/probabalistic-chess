@@ -36,8 +36,8 @@ func generate_legal_moves() -> Array:
 	
 	# Diagonal capture
 	for x in [-1,1]:
-		pos_to_check = Vector2(x,y)
-		if !board.does_pos_have_ally(pos_to_check, self):
+		pos_to_check = grid_pos + Vector2(x,y)
+		if board.does_pos_have_enemy(pos_to_check, self):
 			legal_moves.append(pos_to_check)
 	
 	return legal_moves
