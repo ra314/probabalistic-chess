@@ -16,9 +16,9 @@ func generate_legal_moves() -> Array:
 		pos_to_check = grid_pos
 		call(method_name)
 		while board.is_in_grid(pos_to_check):
-			if !board.does_tile_have_ally(pos_to_check, self):
+			if !board.does_pos_have_ally(pos_to_check, self):
 				legal_moves.append(pos_to_check)
-			if !board.is_tile_empty(pos_to_check):
+			if !board.is_pos_empty(pos_to_check):
 				break
 			call(method_name)
 	

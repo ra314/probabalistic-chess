@@ -24,20 +24,20 @@ func generate_legal_moves() -> Array:
 	
 	# Moving 1 space as normal
 	var pos_to_check: = grid_pos + Vector2(0,y)
-	if board.is_tile_empty(pos_to_check):
+	if board.is_pos_empty(pos_to_check):
 		legal_moves.append(pos_to_check)
 	
 	# Moving 2 spaces at the start
 	if is_at_starting_position():
 		var row_plus_1 = grid_pos + Vector2(0,y)
 		var row_plus_2 = grid_pos + Vector2(0,y*2)
-		if board.is_tile_empty(row_plus_2):
+		if board.is_pos_empty(row_plus_2):
 			legal_moves.append(row_plus_2)
 	
 	# Diagonal capture
 	for x in [-1,1]:
 		pos_to_check = Vector2(x,y)
-		if !board.does_tile_have_ally(pos_to_check, self):
+		if !board.does_pos_have_ally(pos_to_check, self):
 			legal_moves.append(pos_to_check)
 	
 	return legal_moves

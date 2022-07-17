@@ -21,11 +21,31 @@ func debug():
 		for legal_move in get_piece_from_algebraic_pos(algebraic_pos).generate_legal_moves():
 			print(grid_pos_to_algebraic_pos(legal_move))
 
-func get_tile_from_grid_pos(pos: Vector2) -> Piece:
+func get_tile_from_grid_pos(pos: Vector2) -> Tile:
 	return tiles_grid[pos[0]][pos[1]]
 
+var selected_tile_pos: Vector2
+var highlighted_movement_tiles: Array
+
+# Deselecting previous actions
+func undo_highlight() -> void:
+	get_tile_from_grid_pos(selected_tile_pos).deselect()
+	for tile in highlighted_movement_tiles:
+		tile.dehighlight_movement()
+
 func click_grid_pos(grid_pos: Vector2) -> void:
-	get_tile_from_grid_pos(grid_pos).select()
+	undo_highlight()
+	
+	if !is_pos_empty(grid_pos):
+		# Highlight the selected tile
+		get_tile_from_grid_pos(grid_pos).select()
+		selected_tile_pos = grid_pos
+		
+		# Highlight the possible movement tiles
+		for legal_move in get_piece_from_grid_pos(grid_pos).generate_legal_moves():
+			var tile: Tile = get_tile_from_grid_pos(legal_move)
+			tile.highlight_movement()
+			highlighted_movement_tiles.append(tile)
 
 var TILE := load("res://Scenes/Tile.tscn")
 var board_offset: Vector2
@@ -92,16 +112,16 @@ func get_piece_from_algebraic_pos(pos: String) -> Piece:
 	var grid_pos := algebraic_pos_to_grid_pos(pos)
 	return get_piece_from_grid_pos(grid_pos)
 
-func is_tile_empty(pos: Vector2) -> bool:
+func is_pos_empty(pos: Vector2) -> bool:
 	return get_piece_from_grid_pos(pos) == null
 
-func does_tile_have_enemy(pos: Vector2, piece: Piece) -> bool:
-	if !is_tile_empty(pos):
+func does_pos_have_enemy(pos: Vector2, piece: Piece) -> bool:
+	if !is_pos_empty(pos):
 		return get_piece_from_grid_pos(pos).is_white != piece.is_white
 	return false
 
-func does_tile_have_ally(pos: Vector2, piece: Piece) -> bool:
-	if !is_tile_empty(pos):
+func does_pos_have_ally(pos: Vector2, piece: Piece) -> bool:
+	if !is_pos_empty(pos):
 		return get_piece_from_grid_pos(pos).is_white == piece.is_white
 	return false
 
