@@ -54,6 +54,9 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 			prev_selected_piece.place_on(grid_pos)
 		highlighted_movement_tiles = []
 		return
+	else:
+		undo_highlight()
+		show_chance(false)
 
 	highlighted_movement_tiles = []
 	
@@ -162,6 +165,54 @@ static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 
 static func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
 	return char(pos.x+ord('a')) + str(BOARD_SIZE - int(pos.y))
+
+	
+export(Color) var chance_visual_white = Color.white
+export(Color) var chance_visual_black = Color.black
+	
+func show_chance(show: bool) -> void:
+	$"Chance Visual".visible = show
+	
+func update_chance(attacker: Piece, defender: Piece, roll: int) -> void:
+	show_chance(true)
+	
+	var tween: Tween = $Tween
+	
+	var value: int = attacker.value
+	var maximum: int = defender.value + value
+	var roll_to_capture: int = defender.value + 1
+	
+	var attack_sprite = $"Chance Visual/Attacking" as Sprite
+	var defend_sprite = $"Chance Visual/Defending" as Sprite
+	
+	attack_sprite.texture = (attacker.get_node("Sprite") as Sprite).texture
+	defend_sprite.texture = (defender.get_node("Sprite") as Sprite).texture
+	
+	var bar = $"Chance Visual/Chance Bar" as TextureProgress
+	
+	# Chance the Texture Bar to have the color attacking on the left
+	# Filling up to the right
+	if attacker.is_white:
+		bar.tint_progress = chance_visual_white
+		bar.tint_under = chance_visual_black
+	else:
+		bar.tint_progress = chance_visual_black
+		bar.tint_under = chance_visual_white
+	
+	bar.max_value = maximum
+	
+	tween.interpolate_property(bar, "value", float(0), float(roll), 1, Tween.TRANS_BOUNCE, Tween.EASE_OUT)
+	tween.start()
+	
+	var roll_control = $"Chance Visual/Roll" as Node2D
+	var roll_text =  $"Chance Visual/Roll/Text" as Label
+	
+	roll_text.text = "%s" % [roll_to_capture]
+	roll_control.position.x = bar.rect_position.x + (float(roll_to_capture) / float(maximum)) * bar.rect_size.x
+	
+	var odds = $"Chance Visual/Odds/Text" as Label
+	
+	odds.text = "%s:%s" % [attacker.value, defender.value]
 
 func get_pieces() -> Array:
 	var pieces = []
