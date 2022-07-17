@@ -8,6 +8,7 @@ func _ready():
 	
 	update_color(get_node(("Sprite")))
 	value = 3
+	self.prefix = "N"
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []

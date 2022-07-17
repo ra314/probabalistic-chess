@@ -5,6 +5,7 @@ var pieces_grid: Array
 var tiles_grid: Array
 const BOARD_SIZE = 8
 const BOARD_LETTERS = "abcdefgh"
+var rng = RandomNumberGenerator.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -13,6 +14,7 @@ func _ready():
 	tiles_grid = initialize_empty_grid(BOARD_SIZE)
 	initialize_background_tiles()
 	$Button.connect("button_up", self, "debug")
+	rng.randomize()
 
 func debug():
 	monte_carlo_search()
@@ -236,24 +238,78 @@ func init_fake() -> Board:
 	var fake_board = BOARD.instance()
 	fake_board.pieces_grid = initialize_empty_grid(BOARD_SIZE)
 	for piece in get_pieces():
-		var piece_prefix = piece.name.replace("@", "")[0]
-		var new_piece = letter_to_piece[piece_prefix].instance()\
+		var new_piece = letter_to_piece[piece.prefix].instance()\
 						.set_grid_pos(piece.grid_pos).set_color(piece.is_white)
 		new_piece.board = fake_board
 		new_piece.visible = false
 		fake_board.pieces_grid[new_piece.grid_pos.x][new_piece.grid_pos.y] = new_piece
 	return fake_board
 
+func index_random(array):
+	return rng.randi() % len(array)
+
+func select_random(array):
+	return array[index_random(array)]
+
+func select_random_and_remove(array):
+	array = array.duplicate()
+	var index = index_random(array)
+	var selection = array[index]
+	array.remove(index)
+	return selection
+
+var mcts_node = {"children": [], "wins": 0,\
+				 "total": 0, "move": [], "kills":"", "legal_moves_left": []}
+const MAX_ITERS := 1
+
+func does_move_kill(start_pos: Vector2, end_pos: Vector2) -> bool:
+	var piece_to_move = get_piece_from_grid_pos(start_pos)
+	return does_pos_have_enemy(end_pos, piece_to_move)
+
 # Returns the best move in algebraic notation
 func monte_carlo_search() -> String:
-	var fake_board: Board = init_fake()
-	var white_pieces := []
-	var black_pieces := []
+	# DEBUG SUBSTITUTION
+	var fake_board = self
+	#var fake_board: Board = init_fake()
+	
+	var all_pieces = {true: {}, false: {}}
+	var is_white_turn := true
 	
 	for piece in fake_board.get_pieces():
-		if piece.is_white:
-			white_pieces.append(piece)
-		else:
-			black_pieces.append(piece)
+		all_pieces[piece.is_white][piece] = null
 	
+	var mcts_tree = mcts_node.duplicate(true)
+	var num_iters := 0
+	while num_iters < MAX_ITERS:
+		num_iters += 1
+		var curr_node = mcts_tree
+		# Go deeper
+		if len(curr_node["children"]) == 0:
+			while !(curr_node["kills"]=="K"):
+				var target_pieces: Array = all_pieces[is_white_turn].keys()
+				var legal_moves: Array
+				for piece in target_pieces:
+					for legal_move in piece.generate_legal_moves():
+						legal_moves.append([piece.grid_pos, legal_move])
+				curr_node["legal_moves"] = legal_moves
+				var selected_move = select_random_and_remove(legal_moves)
+				var new_node = mcts_node.duplicate(true)
+				new_node["move"] = selected_move
+				if does_move_kill(selected_move[0], selected_move[1]):
+					var killed_piece = fake_board.get_piece_from_grid_pos(selected_move[1])
+					new_node["kills"] = killed_piece.prefix
+					killed_piece.get_node("Sprite").modulate = Color(0.5, 0.5, 0.5, 0.5)
+					all_pieces[killed_piece.is_white].erase(killed_piece)
+				
+				fake_board.get_piece_from_grid_pos(selected_move[0]).place_on(selected_move[1])
+				curr_node["children"].append(new_node)
+				curr_node = new_node
+				is_white_turn = !is_white_turn
+				
+				# DEBUG
+				print(grid_pos_to_algebraic_pos(curr_node["move"][0]), \
+					grid_pos_to_algebraic_pos(curr_node["move"][1]))
+				yield(get_tree().create_timer(0.5), "timeout")
+	
+	#print(mcts_tree)
 	return "a1a2"

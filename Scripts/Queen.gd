@@ -8,6 +8,7 @@ func _ready():
 	
 	update_color(get_node(("Sprite")))
 	value = 9
+	self.prefix = "Q"
 
 var pos_to_check: Vector2
 func generate_legal_moves() -> Array:

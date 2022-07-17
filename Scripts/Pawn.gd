@@ -8,6 +8,7 @@ func _ready():
 	
 	update_color(get_node(("Sprite")))
 	value = 1
+	self.prefix = "P"
 
 const WHITE_STARTING_ROW = 6
 const BLACK_STARTING_ROW = 1
@@ -38,7 +39,8 @@ func generate_legal_moves() -> Array:
 	# Diagonal capture
 	for x in [-1,1]:
 		pos_to_check = grid_pos + Vector2(x,y)
-		if board.does_pos_have_enemy(pos_to_check, self):
-			legal_moves.append(pos_to_check)
+		if board.is_in_grid(pos_to_check):
+			if board.does_pos_have_enemy(pos_to_check, self):
+				legal_moves.append(pos_to_check)
 	
 	return legal_moves

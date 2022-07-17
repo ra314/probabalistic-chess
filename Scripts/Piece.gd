@@ -6,6 +6,7 @@ var grid_pos: Vector2
 var is_white: bool
 var board
 var value: int
+var prefix: String
 
 var white_piece
 var black_piece

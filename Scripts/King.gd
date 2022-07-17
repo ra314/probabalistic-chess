@@ -9,6 +9,7 @@ func _ready():
 	update_color(get_node(("Sprite")))
 	# https://en.wikipedia.org/wiki/Chess_piece_relative_value
 	value = 4
+	self.prefix = "K"
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []
