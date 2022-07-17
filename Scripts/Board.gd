@@ -139,6 +139,9 @@ func intialize_pieces() -> void:
 			.set_grid_pos(algebraic_pos_to_grid_pos(piece[1] + str(BOARD_SIZE)))\
 			.set_color(false))
 
+func set_through_grid_pos(pos: Vector2, piece: Piece) -> void:
+	pieces_grid[pos.x][pos.y] = piece
+
 func get_piece_from_grid_pos(pos: Vector2) -> Piece:
 	return pieces_grid[pos[0]][pos[1]]
 
@@ -279,11 +282,11 @@ func monte_carlo_search() -> String:
 	var fake_board = self
 	#var fake_board: Board = init_fake()
 	
-	var all_pieces = {true: {}, false: {}}
+	var all_pieces = {true: [], false: []}
 	var is_white_turn := true
 	
 	for piece in fake_board.get_pieces():
-		all_pieces[piece.is_white][piece] = null
+		all_pieces[piece.is_white].append(piece)
 	
 	var mcts_tree = mcts_node.duplicate(true)
 	var num_iters := 0
@@ -293,11 +296,12 @@ func monte_carlo_search() -> String:
 		# Rollout
 		if len(curr_node["children"]) == 0:
 			while !is_king(curr_node["killed"]):
-				var target_pieces: Array = all_pieces[is_white_turn].keys()
+				var target_pieces: Array = all_pieces[is_white_turn]
 				var legal_moves: Array
 				for piece in target_pieces:
-					for legal_move in piece.generate_legal_moves():
-						legal_moves.append([piece.grid_pos, legal_move])
+					if !piece.is_dead:
+						for legal_move in piece.generate_legal_moves():
+							legal_moves.append([piece.grid_pos, legal_move])
 				curr_node["legal_moves"] = legal_moves
 				var selected_move = select_random_and_remove(legal_moves)
 				var new_node = mcts_node.duplicate(true)
@@ -307,7 +311,7 @@ func monte_carlo_search() -> String:
 					var killed_piece = fake_board.get_piece_from_grid_pos(selected_move[1])
 					new_node["killed"] = killed_piece
 					killed_piece.get_node("Sprite").modulate = Color(0.5, 0.5, 0.5, 0.5)
-					all_pieces[killed_piece.is_white].erase(killed_piece)
+					killed_piece.is_dead = true
 				
 				fake_board.get_piece_from_grid_pos(selected_move[0]).place_on(selected_move[1])
 				curr_node["children"].append(new_node)
@@ -320,17 +324,15 @@ func monte_carlo_search() -> String:
 				yield(get_tree().create_timer(0.1), "timeout")
 			
 			# Roll back
-			while curr_node != mcts_tree:
-				fake_board.get_piece_from_grid_pos(curr_node["move"][1])\
-							.place_on(curr_node["move"][0])
-				if curr_node["killed"]:
-					var spawn_square = curr_node["move"][1]
-					var revived = curr_node["killed"]
-					revived.get_node("Sprite").modulate = Color(1,1,1,1)
-					all_pieces[revived.is_white][revived] = true
-					fake_board.pieces_grid[spawn_square.x][spawn_square.y] = revived
-				curr_node = curr_node["parent"]
-				yield(get_tree().create_timer(0.1), "timeout")
+			for set_of_pieces in all_pieces.values():
+				for piece in set_of_pieces:
+					piece.mcts_reset()
+			# This needs to be done in 2 phases.
+			# Otherwise if a piece is occupying the place of another piece.
+			# It may set that tile to null after the original owner has arrived.
+			for set_of_pieces in all_pieces.values():
+				for piece in set_of_pieces:
+					fake_board.set_through_grid_pos(piece.grid_pos, piece)
 	
 	#print(mcts_tree)
 	print("DONE WITH MCTS")
