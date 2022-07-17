@@ -27,3 +27,9 @@ func update_color(sprite: Sprite) -> void:
 		sprite.texture = white_piece
 	else:
 		sprite.texture = black_piece
+
+func place_on(new_grid_pos: Vector2) -> void:
+	board.pieces_grid[grid_pos.x][grid_pos.y] = null
+	board.pieces_grid[new_grid_pos.x][new_grid_pos.y] = self
+	grid_pos = new_grid_pos
+	position = size*grid_pos

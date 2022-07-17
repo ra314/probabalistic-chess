@@ -24,22 +24,35 @@ func debug():
 func get_tile_from_grid_pos(pos: Vector2) -> Tile:
 	return tiles_grid[pos[0]][pos[1]]
 
-var selected_tile_pos: Vector2
+var prev_selected_tile_pos: Vector2
 var highlighted_movement_tiles: Array
+
+func was_pos_previously_available_for_movement(grid_pos: Vector2) -> bool:
+	for tile in highlighted_movement_tiles:
+		if tile.grid_pos == grid_pos:
+			return true
+	return false
 
 # Deselecting previous actions
 func undo_highlight() -> void:
-	get_tile_from_grid_pos(selected_tile_pos).deselect()
+	get_tile_from_grid_pos(prev_selected_tile_pos).deselect()
 	for tile in highlighted_movement_tiles:
 		tile.dehighlight_movement()
 
 func click_grid_pos(grid_pos: Vector2) -> void:
 	undo_highlight()
 	
+	if was_pos_previously_available_for_movement(grid_pos):
+		get_piece_from_grid_pos(prev_selected_tile_pos).place_on(grid_pos)
+		highlighted_movement_tiles = []
+		return
+
+	highlighted_movement_tiles = []
+	
 	if !is_pos_empty(grid_pos):
 		# Highlight the selected tile
 		get_tile_from_grid_pos(grid_pos).select()
-		selected_tile_pos = grid_pos
+		prev_selected_tile_pos = grid_pos
 		
 		# Highlight the possible movement tiles
 		for legal_move in get_piece_from_grid_pos(grid_pos).generate_legal_moves():
