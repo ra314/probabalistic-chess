@@ -262,7 +262,7 @@ func select_random_and_remove(array):
 	return selection
 
 var mcts_node = {"children": [], "wins": 0, "parent": null, "total": 0,\
-				 "move": [], "killed":null, "legal_moves_left": []}
+				 "move": [], "killed":null}
 							# killed is killed_piece
 const MAX_ITERS := 1
 
@@ -283,7 +283,8 @@ func monte_carlo_search() -> String:
 	#var fake_board: Board = init_fake()
 	
 	var all_pieces = {true: [], false: []}
-	var is_white_turn := true
+	var is_white_turn_at_start := true
+	var is_white_turn := is_white_turn_at_start
 	
 	for piece in fake_board.get_pieces():
 		all_pieces[piece.is_white].append(piece)
@@ -302,7 +303,6 @@ func monte_carlo_search() -> String:
 					if !piece.is_dead:
 						for legal_move in piece.generate_legal_moves():
 							legal_moves.append([piece.grid_pos, legal_move])
-				curr_node["legal_moves"] = legal_moves
 				var selected_move = select_random_and_remove(legal_moves)
 				var new_node = mcts_node.duplicate(true)
 				new_node["parent"] = curr_node
@@ -319,11 +319,21 @@ func monte_carlo_search() -> String:
 				is_white_turn = !is_white_turn
 				
 				# DEBUG
-				print(grid_pos_to_algebraic_pos(curr_node["move"][0]), \
-					grid_pos_to_algebraic_pos(curr_node["move"][1]))
-				yield(get_tree().create_timer(0.1), "timeout")
+#				print(grid_pos_to_algebraic_pos(curr_node["move"][0]), \
+#					grid_pos_to_algebraic_pos(curr_node["move"][1]))
+#				yield(get_tree().create_timer(0.1), "timeout")
 			
-			# Roll back
+			# Back propogration
+			var winner_is_target_color = curr_node["killed"].is_white == is_white_turn_at_start
+			while curr_node["parent"] != null:
+				curr_node["total"] += 1
+				curr_node["wins"] += int(winner_is_target_color)
+				curr_node = curr_node["parent"]
+			curr_node["total"] += 1
+			curr_node["wins"] += int(winner_is_target_color)
+			print(str(curr_node["wins"]) + "/" + str(curr_node["total"]))
+			
+			# Reset pieces
 			for set_of_pieces in all_pieces.values():
 				for piece in set_of_pieces:
 					piece.mcts_reset()
