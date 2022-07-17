@@ -24,7 +24,6 @@ margin_bottom = 28.6667
 [node name="Tiles" type="Node2D" parent="."]
 
 [node name="Chance Visual" type="Node2D" parent="."]
-visible = false
 position = Vector2( 715, 260 )
 scale = Vector2( 0.668109, 0.668109 )
 

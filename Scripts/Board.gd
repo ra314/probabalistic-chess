@@ -16,6 +16,7 @@ func _ready():
 
 func debug():
 	monte_carlo_search()
+	return
 	for algebraic_pos in "a1 b1 c1 d1 e1 a2".split(" "):
 		print(get_piece_from_algebraic_pos(algebraic_pos))
 		print(get_piece_from_algebraic_pos(algebraic_pos).grid_pos)
@@ -109,6 +110,7 @@ var KNIGHT := load("res://Scenes/Knight.tscn")
 var QUEEN := load("res://Scenes/Queen.tscn")
 var KING := load("res://Scenes/King.tscn")
 var PAWN := load("res://Scenes/Pawn.tscn")
+var letter_to_piece := {"R": ROOK, "B": BISHOP, "N": KNIGHT, "Q": QUEEN, "K": KING, "P": PAWN}
 
 func intialize_pieces() -> void:
 	var algebraic_pos: String
@@ -116,17 +118,24 @@ func intialize_pieces() -> void:
 	# Adding pawns
 	for letter in BOARD_LETTERS:
 		algebraic_pos = letter + str(2)
-		add_child(PAWN.instance().init(algebraic_pos, true))
+		add_child(PAWN.instance()\
+			.set_grid_pos(algebraic_pos_to_grid_pos(algebraic_pos))\
+			.set_color(true))
 		algebraic_pos = letter + str(7)
-		add_child(PAWN.instance().init(algebraic_pos, false))
+		add_child(PAWN.instance()\
+			.set_grid_pos(algebraic_pos_to_grid_pos(algebraic_pos))\
+			.set_color(false))
 	
 	# Adding major pieces
 	var pieces := "Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Ng1 Rh1"
-	var letter_to_piece := {"R": ROOK, "B": BISHOP, "N": KNIGHT, "Q": QUEEN, "K": KING}
 	for piece in pieces.split(" "):
 		var node = letter_to_piece[piece[0]]
-		add_child(node.instance().init(piece.right(1), true))
-		add_child(node.instance().init(piece[1] + str(BOARD_SIZE), false))
+		add_child(node.instance()\
+			.set_grid_pos(algebraic_pos_to_grid_pos(piece.right(1)))\
+			.set_color(true))
+		add_child(node.instance()\
+			.set_grid_pos(algebraic_pos_to_grid_pos(piece[1] + str(BOARD_SIZE)))\
+			.set_color(false))
 
 func get_piece_from_grid_pos(pos: Vector2) -> Piece:
 	return pieces_grid[pos[0]][pos[1]]
@@ -166,10 +175,9 @@ static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 static func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
 	return char(pos.x+ord('a')) + str(BOARD_SIZE - int(pos.y))
 
-	
 export(Color) var chance_visual_white = Color.white
 export(Color) var chance_visual_black = Color.black
-	
+
 func show_chance(show: bool) -> void:
 	$"Chance Visual".visible = show
 	
@@ -225,9 +233,15 @@ func get_pieces() -> Array:
 
 var BOARD := load("res://Scenes/Board.tscn")
 func init_fake() -> Board:
-	var pieces_grid_copy := pieces_grid.duplicate(true)
 	var fake_board = BOARD.instance()
-	fake_board.pieces_grid = pieces_grid_copy
+	fake_board.pieces_grid = initialize_empty_grid(BOARD_SIZE)
+	for piece in get_pieces():
+		var piece_prefix = piece.name.replace("@", "")[0]
+		var new_piece = letter_to_piece[piece_prefix].instance()\
+						.set_grid_pos(piece.grid_pos).set_color(piece.is_white)
+		new_piece.board = fake_board
+		new_piece.visible = false
+		fake_board.pieces_grid[new_piece.grid_pos.x][new_piece.grid_pos.y] = new_piece
 	return fake_board
 
 # Returns the best move in algebraic notation
@@ -242,5 +256,4 @@ func monte_carlo_search() -> String:
 		else:
 			black_pieces.append(piece)
 	
-	print(white_pieces)
 	return "a1a2"
