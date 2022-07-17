@@ -12,47 +12,47 @@ _global_script_classes=[ {
 "base": "Piece",
 "class": "Bishop",
 "language": "GDScript",
-"path": "res://Bishop.gd"
+"path": "res://Scripts/Bishop.gd"
 }, {
 "base": "Node2D",
 "class": "Board",
 "language": "GDScript",
-"path": "res://Board.gd"
+"path": "res://Scripts/Board.gd"
 }, {
 "base": "Piece",
 "class": "King",
 "language": "GDScript",
-"path": "res://King.gd"
+"path": "res://Scripts/King.gd"
 }, {
 "base": "Piece",
 "class": "Knight",
 "language": "GDScript",
-"path": "res://Knight.gd"
+"path": "res://Scripts/Knight.gd"
 }, {
 "base": "Piece",
 "class": "Pawn",
 "language": "GDScript",
-"path": "res://Pawn.gd"
+"path": "res://Scripts/Pawn.gd"
 }, {
 "base": "Node2D",
 "class": "Piece",
 "language": "GDScript",
-"path": "res://Piece.gd"
+"path": "res://Scripts/Piece.gd"
 }, {
 "base": "Piece",
 "class": "Queen",
 "language": "GDScript",
-"path": "res://Queen.gd"
+"path": "res://Scripts/Queen.gd"
 }, {
 "base": "Piece",
 "class": "Rook",
 "language": "GDScript",
-"path": "res://Rook.gd"
+"path": "res://Scripts/Rook.gd"
 }, {
-"base": "Node2D",
+"base": "TextureButton",
 "class": "Tile",
 "language": "GDScript",
-"path": "res://Tile.gd"
+"path": "res://Scripts/Tile.gd"
 } ]
 _global_script_class_icons={
 "Bishop": "",
@@ -69,7 +69,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Probabilistic Chess"
-run/main_scene="res://Board.tscn"
+run/main_scene="res://Scenes/Board.tscn"
 config/icon="res://icon.png"
 
 [physics]

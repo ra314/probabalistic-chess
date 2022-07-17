@@ -19,8 +19,7 @@ func debug():
 			print(grid_pos_to_algebraic_pos(legal_move))
 
 
-const TILE_DIRECTORY: String = "res://Tile.tscn"
-var Tile = load(TILE_DIRECTORY) as Resource
+var TILE := load("res://Scenes/Tile.tscn")
 var board_offset: Vector2
 export(Color) var tile_color
 export(Color) var tile_color_alternate
@@ -29,7 +28,7 @@ func initialize_background_tiles() -> void:
 	var alternate = false
 	for x in range(BOARD_SIZE):
 		for y in range(BOARD_SIZE):
-			var tile = Tile.instance() as Tile
+			var tile = TILE.instance()
 			tile.init(Vector2(y, x) + board_offset)
 			
 			if !alternate:
@@ -51,12 +50,12 @@ func initialize_empty_grid() -> Array:
 			grid[x].append(null)
 	return grid
 
-var ROOK := load("res://Rook.tscn")
-var BISHOP := load("res://Bishop.tscn")
-var KNIGHT := load("res://Knight.tscn")
-var QUEEN := load("res://Queen.tscn")
-var KING := load("res://King.tscn")
-var PAWN := load("res://Pawn.tscn")
+var ROOK := load("res://Scenes/Rook.tscn")
+var BISHOP := load("res://Scenes/Bishop.tscn")
+var KNIGHT := load("res://Scenes/Knight.tscn")
+var QUEEN := load("res://Scenes/Queen.tscn")
+var KING := load("res://Scenes/King.tscn")
+var PAWN := load("res://Scenes/Pawn.tscn")
 
 func intialize_pieces() -> void:
 	var algebraic_pos: String
