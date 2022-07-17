@@ -37,8 +37,21 @@ func update_color(sprite: Sprite) -> void:
 	else:
 		sprite.texture = black_piece
 
+var QUEEN := load("res://Scenes/Queen.tscn")
 func place_on(new_grid_pos: Vector2) -> void:
+	# Wipe the old position
 	board.set_through_grid_pos(grid_pos, null)
+	
+	# Pawn promotion
+	if prefix == "P":
+		if (is_white and new_grid_pos.y == 0) or \
+			(!is_white and new_grid_pos.y == board.BOARD_SIZE-1):
+			var new_queen = QUEEN.instance().set_grid_pos(new_grid_pos).set_color(is_white)
+			board.set_through_grid_pos(new_grid_pos, new_queen)
+			visible = false
+			is_dead = true
+			return
+	
 	board.set_through_grid_pos(new_grid_pos, self)
 	grid_pos = new_grid_pos
 	position = size * grid_pos
@@ -55,6 +68,7 @@ func die() -> void:
 
 func mcts_reset() -> void:
 	is_dead = false
+	visible = true
 	get_node("Sprite").modulate = Color(1,1,1,1)
 	board.set_through_grid_pos(grid_pos, null)
 	grid_pos = init_grid_pos
