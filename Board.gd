@@ -9,6 +9,7 @@ const BOARD_LETTERS = "abcdefgh"
 func _ready():
 	grid = initialize_empty_grid()
 	intialize_pieces()
+	initialize_background_tiles()
 	$Button.connect("button_up", self, "debug")
 
 func debug():
@@ -16,6 +17,31 @@ func debug():
 		print(get_piece_from_algebraic_pos(algebraic_pos))
 		for legal_move in get_piece_from_algebraic_pos(algebraic_pos).generate_legal_moves():
 			print(grid_pos_to_algebraic_pos(legal_move))
+
+
+const TILE_DIRECTORY: String = "res://Tile.tscn"
+var Tile = load(TILE_DIRECTORY) as Resource
+var board_offset: Vector2
+export(Color) var tile_color
+export(Color) var tile_color_alternate
+
+func initialize_background_tiles() -> void:
+	var alternate = false
+	for x in range(BOARD_SIZE):
+		for y in range(BOARD_SIZE):
+			var tile = Tile.instance() as Tile
+			tile.init(Vector2(y, x) + board_offset)
+			
+			if !alternate:
+				tile.set_color(tile_color)
+			else:
+				tile.set_color(tile_color_alternate)
+				
+			alternate = !alternate
+				
+			$Tiles.add_child(tile)
+		# Switches the tile color on a new row
+		alternate = !alternate
 
 func initialize_empty_grid() -> Array:
 	grid = []
