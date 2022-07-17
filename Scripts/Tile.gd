@@ -24,3 +24,12 @@ func create_tex(color: Color, size: Vector2) -> ImageTexture:
 
 func set_color(color: Color) -> void:
 	texture_normal = create_tex(color, size)
+
+func select():
+	$Selected.visible = true
+func deselect():
+	$Selected.visible = false
+func highlight_movement():
+	$"Possible Move".visible = true
+func dehighlight_movement():
+	$"Possible Move".visible = false

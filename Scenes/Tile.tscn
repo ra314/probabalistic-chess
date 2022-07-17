@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Scripts/Tile.gd" type="Script" id=1]
+[ext_resource path="res://Assets/green-circle.webp" type="Texture" id=2]
 
 [node name="Tile" type="TextureButton"]
 margin_right = 64.0
@@ -8,3 +9,17 @@ margin_bottom = 64.0
 rect_min_size = Vector2( 64, 64 )
 expand = true
 script = ExtResource( 1 )
+
+[node name="Selected" type="Sprite" parent="."]
+visible = false
+light_mask = 1023
+scale = Vector2( 0.125, 0.125 )
+texture = ExtResource( 2 )
+centered = false
+
+[node name="Possible Move" type="Sprite" parent="."]
+visible = false
+position = Vector2( 16, 15 )
+scale = Vector2( 0.063, 0.063 )
+texture = ExtResource( 2 )
+centered = false

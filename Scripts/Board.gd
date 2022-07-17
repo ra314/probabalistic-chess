@@ -1,23 +1,31 @@
 extends Node2D
 class_name Board
 
-var grid
+var pieces_grid
+var tiles_grid
 const BOARD_SIZE = 8
 const BOARD_LETTERS = "abcdefgh"
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	grid = initialize_empty_grid()
+	pieces_grid = initialize_empty_grid()
 	intialize_pieces()
+	tiles_grid = initialize_empty_grid()
 	initialize_background_tiles()
 	$Button.connect("button_up", self, "debug")
 
 func debug():
 	for algebraic_pos in "a1 b1 c1 d1 e1 a2".split(" "):
 		print(get_piece_from_algebraic_pos(algebraic_pos))
+		print(get_piece_from_algebraic_pos(algebraic_pos).grid_pos)
 		for legal_move in get_piece_from_algebraic_pos(algebraic_pos).generate_legal_moves():
 			print(grid_pos_to_algebraic_pos(legal_move))
 
+func get_tile_from_grid_pos(pos: Vector2) -> Piece:
+	return tiles_grid[pos[0]][pos[1]]
+
+func click_grid_pos(grid_pos: Vector2) -> void:
+	get_tile_from_grid_pos(grid_pos).select()
 
 var TILE := load("res://Scenes/Tile.tscn")
 var board_offset: Vector2
@@ -25,25 +33,27 @@ export(Color) var tile_color
 export(Color) var tile_color_alternate
 
 func initialize_background_tiles() -> void:
-	var alternate = false
+	var white = true
 	for x in range(BOARD_SIZE):
 		for y in range(BOARD_SIZE):
 			var tile = TILE.instance()
-			tile.init(Vector2(y, x) + board_offset)
+			tile.init(Vector2(x, y) + board_offset)
 			
-			if !alternate:
+			if !white:
 				tile.set_color(tile_color)
 			else:
 				tile.set_color(tile_color_alternate)
 				
-			alternate = !alternate
-				
+			white = !white
+			
 			$Tiles.add_child(tile)
+			tiles_grid[x][y] = tile
+			tile.connect("button_up", self, "click_grid_pos", [tile.grid_pos])
 		# Switches the tile color on a new row
-		alternate = !alternate
+		white = !white
 
 func initialize_empty_grid() -> Array:
-	grid = []
+	var grid = []
 	for x in range(BOARD_SIZE):
 		grid.append([])
 		for y in range(BOARD_SIZE):
@@ -76,7 +86,7 @@ func intialize_pieces() -> void:
 		add_child(node.instance().init(piece[1] + str(BOARD_SIZE), false))
 
 func get_piece_from_grid_pos(pos: Vector2) -> Piece:
-	return grid[pos[0]][pos[1]]
+	return pieces_grid[pos[0]][pos[1]]
 
 func get_piece_from_algebraic_pos(pos: String) -> Piece:
 	var grid_pos := algebraic_pos_to_grid_pos(pos)

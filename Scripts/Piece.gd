@@ -19,7 +19,7 @@ func init(algebraic_pos, is_white):
 func _ready():
 	board = get_parent()
 	grid_pos = board.algebraic_pos_to_grid_pos(algebraic_pos)
-	board.grid[grid_pos.x][grid_pos.y] = self
+	board.pieces_grid[grid_pos.x][grid_pos.y] = self
 	position = size*grid_pos
 
 func update_color(sprite: Sprite) -> void:
