@@ -11,7 +11,7 @@ var prefix: String
 # These 2 vars are used in MCTS to enable us to reset after performing rollout
 # on a single node.
 var is_dead := false
-var init_grid_pos: Vector2
+var before_mcts_grid_pos: Vector2
 
 var white_piece
 var black_piece
@@ -27,7 +27,7 @@ func set_grid_pos(grid_pos):
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	board = get_parent()
-	init_grid_pos = grid_pos
+	before_mcts_grid_pos = grid_pos
 	board.pieces_grid[grid_pos.x][grid_pos.y] = self
 	position = size*grid_pos
 
@@ -46,7 +46,8 @@ func place_on(new_grid_pos: Vector2) -> void:
 	if prefix == "P":
 		if (is_white and new_grid_pos.y == 0) or \
 			(!is_white and new_grid_pos.y == board.BOARD_SIZE-1):
-			var new_queen = QUEEN.instance().set_grid_pos(new_grid_pos).set_color(is_white)
+			var new_queen = QUEEN.instance().set_grid_pos(new_grid_pos).set_color(is_white).init()
+			new_queen.board = board
 			board.set_through_grid_pos(new_grid_pos, new_queen)
 			visible = false
 			is_dead = true
@@ -71,5 +72,5 @@ func mcts_reset() -> void:
 	visible = true
 	get_node("Sprite").modulate = Color(1,1,1,1)
 	board.set_through_grid_pos(grid_pos, null)
-	grid_pos = init_grid_pos
+	grid_pos = before_mcts_grid_pos
 	position = size * grid_pos

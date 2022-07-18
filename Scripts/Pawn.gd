@@ -1,14 +1,18 @@
 extends Piece
 class_name Pawn
 
+func init():
+	self.prefix = "P"
+	self.value = 1
+	return self
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.white_piece = load("res://Assets/White_Pawn.png")
 	self.black_piece = load("res://Assets/Black_Pawn.png")
 	
 	update_color(get_node(("Sprite")))
-	value = 1
-	self.prefix = "P"
+	init()
 
 const WHITE_STARTING_ROW = 6
 const BLACK_STARTING_ROW = 1
@@ -26,8 +30,11 @@ func generate_legal_moves() -> Array:
 	
 	# Moving 1 space as normal
 	var pos_to_check: = grid_pos + Vector2(0,y)
-	if board.is_pos_empty(pos_to_check):
-		legal_moves.append(pos_to_check)
+	# TODO: This first if check should not be necessary, try and fix it.
+	# This should be handled by auto promotion
+	if board.is_in_grid(pos_to_check):
+		if board.is_pos_empty(pos_to_check):
+			legal_moves.append(pos_to_check)
 	
 	# Moving 2 spaces at the start
 	if is_at_starting_position():

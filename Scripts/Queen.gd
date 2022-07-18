@@ -1,14 +1,18 @@
 extends Piece
 class_name Queen
 
+func init():
+	self.prefix = "Q"
+	self.value = 9
+	return self
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.white_piece = load("res://Assets/White_Queen.png")
 	self.black_piece = load("res://Assets/Black_Queen.png")
 	
 	update_color(get_node(("Sprite")))
-	value = 9
-	self.prefix = "Q"
+	init()
 
 var pos_to_check: Vector2
 func generate_legal_moves() -> Array:

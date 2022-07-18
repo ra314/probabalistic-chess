@@ -1,15 +1,19 @@
 extends Piece
 class_name King
 
+func init():
+	self.prefix = "K"
+	# https://en.wikipedia.org/wiki/Chess_piece_relative_value
+	self.value = 4
+	return self
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.white_piece = load("res://Assets/White_King.png")
 	self.black_piece = load("res://Assets/Black_King.png")
 	
 	update_color(get_node(("Sprite")))
-	# https://en.wikipedia.org/wiki/Chess_piece_relative_value
-	value = 4
-	self.prefix = "K"
+	init()
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []

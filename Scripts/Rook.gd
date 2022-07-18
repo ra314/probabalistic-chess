@@ -1,13 +1,18 @@
 extends Piece
 class_name Rook
 
+func init():
+	self.prefix = "R"
+	self.value = 5
+	return self
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.white_piece = load("res://Assets/White_Rook.png")
 	self.black_piece = load("res://Assets/Black_Rook.png")
 	
 	update_color(get_node(("Sprite")))
-	value = 5
+	init()
 
 var pos_to_check: Vector2
 func generate_legal_moves() -> Array:

@@ -1,14 +1,18 @@
 extends Piece
 class_name Knight
 
+func init():
+	self.prefix = "N"
+	self.value = 3
+	return self
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	self.white_piece = load("res://Assets/White_Knight.png")
 	self.black_piece = load("res://Assets/Black_Knight.png")
 	
 	update_color(get_node(("Sprite")))
-	value = 3
-	self.prefix = "N"
+	init()
 
 func generate_legal_moves() -> Array:
 	var legal_moves := []
