@@ -36,7 +36,7 @@ func generate_legal_moves() -> Array:
 	var pos_to_check: = grid_pos + Vector2(0,y)
 	# TODO: This first if check should not be necessary, try and fix it.
 	# This should be handled by auto promotion
-	if board.is_in_grid(pos_to_check):
+	if BoardUtils.is_in_grid(pos_to_check):
 		if board.is_pos_empty(pos_to_check):
 			legal_moves.append(pos_to_check)
 	
@@ -50,7 +50,7 @@ func generate_legal_moves() -> Array:
 	# Diagonal capture
 	for x in [-1,1]:
 		pos_to_check = grid_pos + Vector2(x,y)
-		if board.is_in_grid(pos_to_check):
+		if BoardUtils.is_in_grid(pos_to_check):
 			if board.does_pos_have_enemy(pos_to_check, self):
 				legal_moves.append(pos_to_check)
 	

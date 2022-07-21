@@ -3,16 +3,15 @@ class_name Board
 
 var pieces_grid: Array
 var tiles_grid: Array
-const BOARD_SIZE = 8
 const BOARD_LETTERS = "abcdefgh"
 var rng = RandomNumberGenerator.new()
 var is_white_turn := true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pieces_grid = initialize_empty_grid(BOARD_SIZE)
+	pieces_grid = BoardUtils.initialize_empty_grid()
 	intialize_pieces()
-	tiles_grid = initialize_empty_grid(BOARD_SIZE)
+	tiles_grid = BoardUtils.initialize_empty_grid()
 	initialize_background_tiles()
 	$Button.connect("button_up", self, "get_ai_suggestion")
 	rng.randomize()
@@ -79,8 +78,8 @@ export(Color) var tile_color_alternate
 
 func initialize_background_tiles() -> void:
 	var white = true
-	for x in range(BOARD_SIZE):
-		for y in range(BOARD_SIZE):
+	for x in range(BoardUtils.BOARD_SIZE):
+		for y in range(BoardUtils.BOARD_SIZE):
 			var tile = TILE.instance()
 			tile.init(Vector2(x, y))
 			
@@ -97,13 +96,7 @@ func initialize_background_tiles() -> void:
 		# Switches the tile color on a new row
 		white = !white
 
-static func initialize_empty_grid(board_size: int) -> Array:
-	var grid = []
-	for x in range(board_size):
-		grid.append([])
-		for _y in range(board_size):
-			grid[x].append(null)
-	return grid
+
 
 var ROOK := load("res://Scenes/Rook.tscn")
 var BISHOP := load("res://Scenes/Bishop.tscn")
@@ -120,11 +113,11 @@ func intialize_pieces() -> void:
 	for letter in BOARD_LETTERS:
 		algebraic_pos = letter + str(2)
 		add_child(PAWN.instance()\
-			.set_grid_pos(algebraic_pos_to_grid_pos(algebraic_pos))\
+			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
 			.set_color(true))
 		algebraic_pos = letter + str(7)
 		add_child(PAWN.instance()\
-			.set_grid_pos(algebraic_pos_to_grid_pos(algebraic_pos))\
+			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
 			.set_color(false))
 	
 	# Adding major pieces
@@ -132,10 +125,10 @@ func intialize_pieces() -> void:
 	for piece in pieces.split(" "):
 		var node = letter_to_piece[piece[0]]
 		add_child(node.instance()\
-			.set_grid_pos(algebraic_pos_to_grid_pos(piece.right(1)))\
+			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece.right(1)))\
 			.set_color(true))
 		add_child(node.instance()\
-			.set_grid_pos(algebraic_pos_to_grid_pos(piece[1] + str(BOARD_SIZE)))\
+			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE)))\
 			.set_color(false))
 
 func set_through_grid_pos(pos: Vector2, piece) -> void:
@@ -145,7 +138,7 @@ func get_piece_from_grid_pos(pos: Vector2):
 	return pieces_grid[pos[0]][pos[1]]
 
 func get_piece_from_algebraic_pos(pos: String):
-	var grid_pos := algebraic_pos_to_grid_pos(pos)
+	var grid_pos := BoardUtils.algebraic_pos_to_grid_pos(pos)
 	return get_piece_from_grid_pos(grid_pos)
 
 func is_pos_empty(pos: Vector2) -> bool:
@@ -160,24 +153,6 @@ func does_pos_have_ally(pos: Vector2, piece) -> bool:
 	if !is_pos_empty(pos):
 		return get_piece_from_grid_pos(pos).is_white == piece.is_white
 	return false
-
-func is_in_grid(pos: Vector2) -> bool:
-	for num in [pos.x, pos.y]:
-		if num<0 or num>=BOARD_SIZE:
-			return false
-	return true
-
-static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
-	assert(len(pos)==2)
-	assert(pos[1].is_valid_integer())
-	
-	var new_pos := Vector2()
-	new_pos.x = ord(pos.to_lower()[0])-ord('a')
-	new_pos.y = BOARD_SIZE - int(pos[1])
-	return new_pos
-
-static func grid_pos_to_algebraic_pos(pos: Vector2) -> String:
-	return char(pos.x+ord('a')) + str(BOARD_SIZE - int(pos.y))
 
 export(Color) var chance_visual_white = Color.white
 export(Color) var chance_visual_black = Color.black
@@ -228,8 +203,8 @@ func update_chance(attacker, defender, roll: int) -> void:
 
 func get_pieces() -> Array:
 	var pieces = []
-	for x in range(BOARD_SIZE):
-		for y in range(BOARD_SIZE):
+	for x in range(BoardUtils.BOARD_SIZE):
+		for y in range(BoardUtils.BOARD_SIZE):
 			var piece = pieces_grid[x][y]
 			if piece != null:
 				pieces.append(piece)
@@ -238,7 +213,7 @@ func get_pieces() -> Array:
 var BOARD := load("res://Scenes/Board.tscn")
 func init_fake() -> Board:
 	var fake_board = BOARD.instance()
-	fake_board.pieces_grid = initialize_empty_grid(BOARD_SIZE)
+	fake_board.pieces_grid = BoardUtils.initialize_empty_grid()
 	for piece in get_pieces():
 		var new_piece = letter_to_piece[piece.prefix].instance()\
 						.set_grid_pos(piece.grid_pos).set_color(piece.is_white)\

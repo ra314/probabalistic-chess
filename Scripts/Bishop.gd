@@ -21,7 +21,7 @@ func generate_legal_moves() -> Array:
 	for method_name in ["move_NE", "move_SE", "move_NW", "move_SW"]:
 		pos_to_check = grid_pos
 		call(method_name)
-		while board.is_in_grid(pos_to_check):
+		while BoardUtils.is_in_grid(pos_to_check):
 			if !board.does_pos_have_ally(pos_to_check, self):
 				legal_moves.append(pos_to_check)
 			if !board.is_pos_empty(pos_to_check):

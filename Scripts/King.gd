@@ -21,7 +21,7 @@ func generate_legal_moves() -> Array:
 	for x in [-1,0,1]:
 		for y in [-1,0,1]:
 			var pos_to_check := grid_pos + Vector2(x,y)
-			if board.is_in_grid(pos_to_check):
+			if BoardUtils.is_in_grid(pos_to_check):
 				if !board.does_pos_have_ally(pos_to_check, self):
 					legal_moves.append(pos_to_check)
 	
