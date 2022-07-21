@@ -17,6 +17,10 @@ func _ready():
 const WHITE_STARTING_ROW = 6
 const BLACK_STARTING_ROW = 1
 
+static func is_on_promotion_square(row_num: int, is_white: bool) -> bool:
+	return (is_white and row_num == BLACK_STARTING_ROW-1) \
+			or (!is_white and row_num == WHITE_STARTING_ROW+1)
+
 func is_at_starting_position() -> bool:
 	if is_white and grid_pos[1] == WHITE_STARTING_ROW:
 		return true
