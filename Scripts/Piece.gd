@@ -55,11 +55,11 @@ func place_on(new_grid_pos: Vector2) -> void:
 		if PAWN.is_on_promotion_square(grid_pos.y, is_white):
 			promote_self_to_queen()
 
-func is_attack_successful(defender: Piece) -> bool:
+# Returns {"attack_success": bool, "roll": int}
+func is_attack_successful(defender: Piece) -> Dictionary:
 	var maximum = defender.value + value
 	var roll: int = RNG.rng.randi_range(1, maximum)
-	board.update_chance(self, defender, roll)
-	return roll > defender.value
+	return {"attack_success": roll > defender.value, "roll": roll}
 
 func die() -> void:
 	visible = false

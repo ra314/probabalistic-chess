@@ -47,7 +47,9 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 		var prev_selected_piece = get_piece_from_grid_pos(prev_selected_tile_pos)
 		if does_pos_have_enemy(grid_pos, prev_selected_piece):
 			var enemy = get_piece_from_grid_pos(grid_pos)
-			if prev_selected_piece.is_attack_successful(enemy):
+			var retval = prev_selected_piece.is_attack_successful(enemy)
+			if retval["attack_success"]:
+				update_chance(prev_selected_piece, enemy, retval["roll"])
 				enemy.die()
 				prev_selected_piece.place_on(grid_pos)
 		else:
