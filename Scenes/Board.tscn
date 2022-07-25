@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Scripts/Board.gd" type="Script" id=1]
 [ext_resource path="res://Assets/white_bar.png" type="Texture" id=2]
@@ -7,13 +7,13 @@
 [ext_resource path="res://Assets/GlacialIndefference_Regular.tres" type="DynamicFont" id=5]
 [ext_resource path="res://Assets/Mouse_Target.png" type="Texture" id=6]
 [ext_resource path="res://Assets/white_square.png" type="Texture" id=7]
+[ext_resource path="res://Scripts/BoardVisuals.gd" type="Script" id=8]
+[ext_resource path="res://Scripts/BoardPieces.gd" type="Script" id=9]
 
 [node name="Board" type="Node2D"]
 position = Vector2( 50, 50 )
 scale = Vector2( 1.5, 1.5 )
 script = ExtResource( 1 )
-tile_color = Color( 0.47451, 0.282353, 0.223529, 1 )
-tile_color_alternate = Color( 0.364706, 0.196078, 0.192157, 1 )
 
 [node name="Button" type="Button" parent="."]
 margin_left = 1128.0
@@ -21,13 +21,16 @@ margin_top = -31.3333
 margin_right = 1245.0
 margin_bottom = 28.6667
 
-[node name="Tiles" type="Node2D" parent="."]
+[node name="Visuals" type="Node2D" parent="."]
+script = ExtResource( 8 )
+tile_color_alternate = Color( 1, 1, 1, 1 )
 
-[node name="Chance Visual" type="Node2D" parent="."]
+[node name="Chance Visual" type="Node2D" parent="Visuals"]
+visible = false
 position = Vector2( 715, 260 )
 scale = Vector2( 0.668109, 0.668109 )
 
-[node name="Chance Bar" type="TextureProgress" parent="Chance Visual"]
+[node name="Chance Bar" type="TextureProgress" parent="Visuals/Chance Visual"]
 margin_left = -191.586
 margin_right = 320.414
 margin_bottom = 51.0
@@ -39,27 +42,27 @@ texture_progress = ExtResource( 2 )
 tint_over = Color( 1, 1, 1, 0 )
 tint_progress = Color( 0, 0, 0, 1 )
 
-[node name="Target" type="Sprite" parent="Chance Visual"]
+[node name="Target" type="Sprite" parent="Visuals/Chance Visual"]
 modulate = Color( 0.92549, 0.184314, 0.184314, 1 )
 position = Vector2( 245.469, -300.35 )
 scale = Vector2( 0.263048, 0.263048 )
 texture = ExtResource( 6 )
 
-[node name="Attacking" type="Sprite" parent="Chance Visual"]
+[node name="Attacking" type="Sprite" parent="Visuals/Chance Visual"]
 position = Vector2( -118.743, -140.696 )
 scale = Vector2( 0.188, 0.188 )
 texture = ExtResource( 3 )
 
-[node name="Defending" type="Sprite" parent="Chance Visual"]
+[node name="Defending" type="Sprite" parent="Visuals/Chance Visual"]
 position = Vector2( 243.473, -140.696 )
 scale = Vector2( 0.188, 0.188 )
 texture = ExtResource( 3 )
 
-[node name="Roll" type="Node2D" parent="Chance Visual"]
+[node name="Roll" type="Node2D" parent="Visuals/Chance Visual"]
 position = Vector2( -191.087, 110.76 )
 scale = Vector2( 0.840708, 0.840708 )
 
-[node name="Text" type="Label" parent="Chance Visual/Roll"]
+[node name="Text" type="Label" parent="Visuals/Chance Visual/Roll"]
 margin_left = -116.0
 margin_top = -60.0
 margin_right = 116.0
@@ -70,17 +73,17 @@ text = "2"
 align = 1
 valign = 1
 
-[node name="Sprite" type="Sprite" parent="Chance Visual/Roll"]
+[node name="Sprite" type="Sprite" parent="Visuals/Chance Visual/Roll"]
 modulate = Color( 1, 0, 0, 1 )
 position = Vector2( 0, -100 )
 scale = Vector2( 15, 96 )
 texture = ExtResource( 7 )
 
-[node name="Versus" type="Node2D" parent="Chance Visual"]
+[node name="Versus" type="Node2D" parent="Visuals/Chance Visual"]
 position = Vector2( 68.8511, -128.722 )
 scale = Vector2( 1.33333, 1.33333 )
 
-[node name="Text" type="Label" parent="Chance Visual/Versus"]
+[node name="Text" type="Label" parent="Visuals/Chance Visual/Versus"]
 margin_left = -116.0
 margin_top = -60.0
 margin_right = 116.0
@@ -91,11 +94,11 @@ text = "VS"
 align = 1
 valign = 1
 
-[node name="Odds" type="Node2D" parent="Chance Visual"]
+[node name="Odds" type="Node2D" parent="Visuals/Chance Visual"]
 position = Vector2( 68.8511, 270.415 )
 scale = Vector2( 1.33333, 1.33333 )
 
-[node name="Text" type="Label" parent="Chance Visual/Odds"]
+[node name="Text" type="Label" parent="Visuals/Chance Visual/Odds"]
 margin_left = -116.0
 margin_top = -60.0
 margin_right = 116.0
@@ -106,12 +109,12 @@ text = "1:1"
 align = 1
 valign = 1
 
-[node name="Extra" type="Node2D" parent="Chance Visual"]
+[node name="Extra" type="Node2D" parent="Visuals/Chance Visual"]
 visible = false
 position = Vector2( 68.8511, 270.415 )
 scale = Vector2( 0.580294, 0.580294 )
 
-[node name="Text" type="Label" parent="Chance Visual/Extra"]
+[node name="Text" type="Label" parent="Visuals/Chance Visual/Extra"]
 margin_left = -585.0
 margin_top = -144.442
 margin_right = 585.0
@@ -124,4 +127,9 @@ You rolled a 1"
 align = 1
 valign = 1
 
-[node name="Tween" type="Tween" parent="."]
+[node name="Tiles" type="Node2D" parent="Visuals"]
+
+[node name="Tween" type="Tween" parent="Visuals"]
+
+[node name="Pieces" type="Node2D" parent="."]
+script = ExtResource( 9 )

@@ -1,223 +1,30 @@
 extends Node2D
 class_name Board
 
-var pieces_grid: Array
-var tiles_grid: Array
-const BOARD_LETTERS = "abcdefgh"
+
 var rng = RandomNumberGenerator.new()
 var is_white_turn := true
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pieces_grid = BoardUtils.initialize_empty_grid()
-	intialize_pieces()
-	tiles_grid = BoardUtils.initialize_empty_grid()
-	initialize_background_tiles()
+	
+	$Pieces.init()
+	$Visuals.init()
 	$Button.connect("button_up", self, "get_ai_suggestion")
 	rng.randomize()
 
 func get_ai_suggestion():
 	var move = monte_carlo_search()
-	click_grid_pos(move[0])
+	$Visuals.click_grid_pos(move[0])
 	yield(get_tree().create_timer(1), "timeout")
-	click_grid_pos(move[1])
-
-func get_tile_from_grid_pos(pos: Vector2) -> Tile:
-	return tiles_grid[pos[0]][pos[1]]
-
-var prev_selected_tile_pos: Vector2
-var highlighted_movement_tiles: Array
-
-func was_pos_previously_available_for_movement(grid_pos: Vector2) -> bool:
-	for tile in highlighted_movement_tiles:
-		if tile.grid_pos == grid_pos:
-			return true
-	return false
-
-# Deselecting previous actions
-func undo_highlight() -> void:
-	get_tile_from_grid_pos(prev_selected_tile_pos).deselect()
-	for tile in highlighted_movement_tiles:
-		tile.dehighlight_movement()
-
-func click_grid_pos(grid_pos: Vector2) -> void:
-	undo_highlight()
-	
-	if was_pos_previously_available_for_movement(grid_pos):
-		var prev_selected_piece = get_piece_from_grid_pos(prev_selected_tile_pos)
-		if does_pos_have_enemy(grid_pos, prev_selected_piece):
-			var enemy = get_piece_from_grid_pos(grid_pos)
-			var retval = prev_selected_piece.is_attack_successful(enemy)
-			if retval["attack_success"]:
-				update_chance(prev_selected_piece, enemy, retval["roll"])
-				enemy.die()
-				prev_selected_piece.place_on(grid_pos)
-		else:
-			prev_selected_piece.place_on(grid_pos)
-		highlighted_movement_tiles = []
-		is_white_turn = !is_white_turn
-		return
-	else:
-		undo_highlight()
-		show_chance(false)
-
-	highlighted_movement_tiles = []
-	
-	if !is_pos_empty(grid_pos):
-		# Highlight the selected tile
-		get_tile_from_grid_pos(grid_pos).select()
-		prev_selected_tile_pos = grid_pos
-		
-		# Highlight the possible movement tiles
-		for legal_move in get_piece_from_grid_pos(grid_pos).generate_legal_moves():
-			var tile: Tile = get_tile_from_grid_pos(legal_move)
-			tile.highlight_movement()
-			highlighted_movement_tiles.append(tile)
-
-var TILE := load("res://Scenes/Tile.tscn")
-export(Color) var tile_color
-export(Color) var tile_color_alternate
-
-func initialize_background_tiles() -> void:
-	var white = true
-	for x in range(BoardUtils.BOARD_SIZE):
-		for y in range(BoardUtils.BOARD_SIZE):
-			var tile = TILE.instance()
-			tile.init(Vector2(x, y))
-			
-			if !white:
-				tile.set_color(tile_color)
-			else:
-				tile.set_color(tile_color_alternate)
-				
-			white = !white
-			
-			$Tiles.add_child(tile)
-			tiles_grid[x][y] = tile
-			tile.connect("button_up", self, "click_grid_pos", [tile.grid_pos])
-		# Switches the tile color on a new row
-		white = !white
-
-
-
-var ROOK := load("res://Scenes/Rook.tscn")
-var BISHOP := load("res://Scenes/Bishop.tscn")
-var KNIGHT := load("res://Scenes/Knight.tscn")
-var QUEEN := load("res://Scenes/Queen.tscn")
-var KING := load("res://Scenes/King.tscn")
-var PAWN := load("res://Scenes/Pawn.tscn")
-var letter_to_piece := {"R": ROOK, "B": BISHOP, "N": KNIGHT, "Q": QUEEN, "K": KING, "P": PAWN}
-
-func intialize_pieces() -> void:
-	var algebraic_pos: String
-	
-	# Adding pawns
-	for letter in BOARD_LETTERS:
-		algebraic_pos = letter + str(2)
-		add_child(PAWN.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
-			.set_color(true))
-		algebraic_pos = letter + str(7)
-		add_child(PAWN.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
-			.set_color(false))
-	
-	# Adding major pieces
-	var pieces := "Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Ng1 Rh1"
-	for piece in pieces.split(" "):
-		var node = letter_to_piece[piece[0]]
-		add_child(node.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece.right(1)))\
-			.set_color(true))
-		add_child(node.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE)))\
-			.set_color(false))
-
-func set_through_grid_pos(pos: Vector2, piece) -> void:
-	pieces_grid[pos.x][pos.y] = piece
-
-func get_piece_from_grid_pos(pos: Vector2):
-	return pieces_grid[pos[0]][pos[1]]
-
-func get_piece_from_algebraic_pos(pos: String):
-	var grid_pos := BoardUtils.algebraic_pos_to_grid_pos(pos)
-	return get_piece_from_grid_pos(grid_pos)
-
-func is_pos_empty(pos: Vector2) -> bool:
-	return get_piece_from_grid_pos(pos) == null
-
-func does_pos_have_enemy(pos: Vector2, piece) -> bool:
-	if !is_pos_empty(pos):
-		return get_piece_from_grid_pos(pos).is_white != piece.is_white
-	return false
-
-func does_pos_have_ally(pos: Vector2, piece) -> bool:
-	if !is_pos_empty(pos):
-		return get_piece_from_grid_pos(pos).is_white == piece.is_white
-	return false
-
-export(Color) var chance_visual_white = Color.white
-export(Color) var chance_visual_black = Color.black
-
-func show_chance(show: bool) -> void:
-	$"Chance Visual".visible = show
-	
-func update_chance(attacker, defender, roll: int) -> void:
-	show_chance(true)
-	
-	var tween: Tween = $Tween
-	
-	var value: int = attacker.value
-	var maximum: int = defender.value + value
-	var roll_to_capture: int = defender.value + 1
-	
-	var attack_sprite = $"Chance Visual/Attacking" as Sprite
-	var defend_sprite = $"Chance Visual/Defending" as Sprite
-	
-	attack_sprite.texture = (attacker.get_node("Sprite") as Sprite).texture
-	defend_sprite.texture = (defender.get_node("Sprite") as Sprite).texture
-	
-	var bar = $"Chance Visual/Chance Bar" as TextureProgress
-	
-	# Chance the Texture Bar to have the color attacking on the left
-	# Filling up to the right
-	if attacker.is_white:
-		bar.tint_progress = chance_visual_white
-		bar.tint_under = chance_visual_black
-	else:
-		bar.tint_progress = chance_visual_black
-		bar.tint_under = chance_visual_white
-	
-	bar.max_value = maximum
-	
-	tween.interpolate_property(bar, "value", float(0), float(roll), 1, Tween.TRANS_BOUNCE, Tween.EASE_OUT)
-	tween.start()
-	
-	var roll_control = $"Chance Visual/Roll" as Node2D
-	var roll_text =  $"Chance Visual/Roll/Text" as Label
-	
-	roll_text.text = "%s" % [roll_to_capture]
-	roll_control.position.x = bar.rect_position.x + (float(roll_to_capture) / float(maximum)) * bar.rect_size.x
-	
-	var odds = $"Chance Visual/Odds/Text" as Label
-	
-	odds.text = "%s:%s" % [attacker.value, defender.value]
-
-func get_pieces() -> Array:
-	var pieces = []
-	for x in range(BoardUtils.BOARD_SIZE):
-		for y in range(BoardUtils.BOARD_SIZE):
-			var piece = pieces_grid[x][y]
-			if piece != null:
-				pieces.append(piece)
-	return pieces
+	$Visuals.click_grid_pos(move[1])
 
 var BOARD := load("res://Scenes/Board.tscn")
 func init_fake() -> Board:
 	var fake_board = BOARD.instance()
 	fake_board.pieces_grid = BoardUtils.initialize_empty_grid()
-	for piece in get_pieces():
-		var new_piece = letter_to_piece[piece.prefix].instance()\
+	for piece in $Pieces.get_pieces():
+		var new_piece = $Pieces.letter_to_piece[piece.prefix].instance()\
 						.set_grid_pos(piece.grid_pos).set_color(piece.is_white)\
 						.init()
 		new_piece.board = fake_board
@@ -244,8 +51,8 @@ var mcts_node = {"children": {}, "wins": 0, "parent": null, "total": 0,\
 const MAX_ITERS := 100
 
 func does_move_kill(start_pos: Vector2, end_pos: Vector2) -> bool:
-	var piece_to_move = get_piece_from_grid_pos(start_pos)
-	return does_pos_have_enemy(end_pos, piece_to_move)
+	var piece_to_move = $Pieces.get_piece_from_grid_pos(start_pos)
+	return $Pieces.does_pos_have_enemy(end_pos, piece_to_move)
 
 # Performs null_check
 static func is_king(piece):
