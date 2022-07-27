@@ -9,7 +9,9 @@ var KING := load("res://Scenes/King.tscn")
 var PAWN := load("res://Scenes/Pawn.tscn")
 var letter_to_piece := {"R": ROOK, "B": BISHOP, "N": KNIGHT, "Q": QUEEN, "K": KING, "P": PAWN}
 
-var all_pieces = {}
+var white_pieces = {}
+var black_pieces = {}
+var all_pieces = {true: white_pieces, false: black_pieces}
 var pieces_grid: Array
 const BOARD_LETTERS = "abcdefgh"
 
@@ -17,34 +19,35 @@ func init():
 	pieces_grid = BoardUtils.initialize_empty_grid()
 	intialize_pieces()
 
+func duplicate_board(boardPieces) -> void:
+	boardPieces.pieces_grid = BoardUtils.initialize_empty_grid()
+	for piece in get_pieces():
+		letter_to_piece[piece.prefix].instance()\
+		.init2(piece.is_white, boardPieces, piece.grid_pos).init()
+
 func intialize_pieces() -> void:
 	var algebraic_pos: String
+	var grid_pos: Vector2
 	
 	# Adding pawns
 	for letter in BOARD_LETTERS:
 		algebraic_pos = letter + str(2)
-		add_child(PAWN.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
-			.set_color(true))
+		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos)
+		add_child(PAWN.instance().init2(true, self, grid_pos).init())
 		algebraic_pos = letter + str(7)
-		add_child(PAWN.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos))\
-			.set_color(false))
+		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos)
+		add_child(PAWN.instance().init2(false, self, grid_pos).init())
 	
 	# Adding major pieces
 	var pieces := "Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Ng1 Rh1"
 	for piece in pieces.split(" "):
 		var node = letter_to_piece[piece[0]]
-		add_child(node.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece.right(1)))\
-			.set_color(true))
-		add_child(node.instance()\
-			.set_grid_pos(BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE)))\
-			.set_color(false))
+		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(piece.right(1))
+		add_child(node.instance().init2(true, self, grid_pos).init())
+		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE))
+		add_child(node.instance().init2(false, self, grid_pos).init())
 
 func set_through_grid_pos(pos: Vector2, piece) -> void:
-	all_pieces.erase(pieces_grid[pos.x][pos.y])
-	all_pieces[piece] = true
 	pieces_grid[pos.x][pos.y] = piece
 
 func get_piece_from_grid_pos(pos: Vector2):
@@ -68,5 +71,15 @@ func does_pos_have_ally(pos: Vector2, piece) -> bool:
 	return false
 
 func get_pieces() -> Array:
-	all_pieces.erase(null)
-	return all_pieces.keys()
+	return white_pieces.keys() + black_pieces.keys()
+
+func debug_print() -> String:
+	var retval = ""
+	for row in pieces_grid:
+		for piece in row:
+			if piece == null:
+				retval += '#'
+			else:
+				retval += str(piece.value)
+		retval += "\n"
+	return retval

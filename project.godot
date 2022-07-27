@@ -20,6 +20,11 @@ _global_script_classes=[ {
 "path": "res://Scripts/Board.gd"
 }, {
 "base": "Node2D",
+"class": "BoardAI",
+"language": "GDScript",
+"path": "res://Scripts/BoardAI.gd"
+}, {
+"base": "Node2D",
 "class": "BoardPieces",
 "language": "GDScript",
 "path": "res://Scripts/BoardPieces.gd"
@@ -67,6 +72,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Bishop": "",
 "Board": "",
+"BoardAI": "",
 "BoardPieces": "",
 "BoardUtils": "",
 "King": "",

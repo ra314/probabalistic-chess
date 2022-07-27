@@ -1,10 +1,11 @@
 extends Node2D
 class_name Piece
 
-const size := Vector2(64,64)
-var grid_pos: Vector2
+const SIZE := Vector2(64,64)
+const INVALID_GRID_POS := Vector2(-1,-1)
+var grid_pos: Vector2 = INVALID_GRID_POS
 var is_white: bool
-var board
+var board: BoardPieces
 var value: int
 var prefix: String
 
@@ -15,15 +16,22 @@ var black_piece
 func set_color(is_white):
 	self.is_white = is_white
 	return self
+func set_board(board: BoardPieces):
+	self.board = board
+	board.all_pieces[is_white][self] = true
+	return self
 func set_grid_pos(grid_pos):
-	self.grid_pos = grid_pos
+	position = SIZE*grid_pos
+	place_on(grid_pos)
 	return self
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	board = get_parent()
-	board.pieces_grid[grid_pos.x][grid_pos.y] = self
-	position = size*grid_pos
+func init2(is_white: bool, board: BoardPieces, grid_pos: Vector2) -> Piece:
+	self.is_white = is_white
+	self.board = board
+	board.all_pieces[is_white][self] = true
+	position = SIZE*grid_pos
+	place_on(grid_pos)
+	return self
 
 func update_color(sprite: Sprite) -> void:
 	if is_white:
@@ -44,17 +52,20 @@ func promote_self_to_queen() -> void:
 
 var PAWN := load("res://Scripts/Pawn.gd")
 func place_on(new_grid_pos: Vector2) -> void:
-	# Wipe the old position
-	board.set_through_grid_pos(grid_pos, null)
+	if grid_pos != INVALID_GRID_POS:
+		# Wipe the old position
+		board.set_through_grid_pos(grid_pos, null)
 	board.set_through_grid_pos(new_grid_pos, self)
 	grid_pos = new_grid_pos
-	position = size * grid_pos
+	position = SIZE * grid_pos
 	
 	# Pawn promotion
 	if prefix == "P":
 		if PAWN.is_on_promotion_square(grid_pos.y, is_white):
 			promote_self_to_queen()
 
+func odds_of_successful_attack(defender: Piece) -> float:
+	return float(value)/float(defender.value + value)
 # Returns {"attack_success": bool, "roll": int}
 func is_attack_successful(defender: Piece) -> Dictionary:
 	var maximum = defender.value + value
@@ -62,5 +73,10 @@ func is_attack_successful(defender: Piece) -> Dictionary:
 	return {"attack_success": roll > defender.value, "roll": roll}
 
 func die() -> void:
+	board.all_pieces[is_white].erase(self)
 	visible = false
-	queue_free()
+
+func revive() -> void:
+	board.set_through_grid_pos(grid_pos, self)
+	board.all_pieces[is_white][self] = true
+	visible = true

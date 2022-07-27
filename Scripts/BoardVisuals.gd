@@ -1,15 +1,18 @@
 extends Node
 
+const tile_color = Color( 0.47451, 0.282353, 0.223529, 1 )
+const tile_color_alternate = Color( 0.364706, 0.196078, 0.192157, 1 )
 var TILE := load("res://Scenes/Tile.tscn")
-export(Color) var tile_color
-export(Color) var tile_color_alternate
 var tiles_grid: Array
 var B: Board
 var BP: BoardPieces
+var BAI: BoardAI
 
 func _ready():
 	B = get_parent()
 	BP = get_parent().get_node("Pieces")
+	BAI = get_parent().get_node("AI")
+	$Button.connect("button_up", self, "get_ai_suggestion")
 
 func init() -> void:
 	tiles_grid = BoardUtils.initialize_empty_grid()
@@ -22,6 +25,9 @@ var prev_selected_tile_pos: Vector2
 var highlighted_movement_tiles: Array
 
 func was_pos_previously_available_for_movement(grid_pos: Vector2) -> bool:
+	# Return false if the same tile was clicked twice
+	if prev_selected_tile_pos == grid_pos:
+		return false
 	for tile in highlighted_movement_tiles:
 		if tile.grid_pos == grid_pos:
 			return true
@@ -133,3 +139,11 @@ func update_chance(attacker: Piece, defender: Piece, roll: int) -> void:
 	var odds = $"Chance Visual/Odds/Text" as Label
 	
 	odds.text = "%s:%s" % [attacker.value, defender.value]
+
+# CURRENTLY ONLY MAKES SUGGESTIONS FOR BLACK
+func get_ai_suggestion():
+	var moves = BAI.evaluate_MM_root(3, false)[1]
+	var move = moves[len(moves)-1]
+	click_grid_pos(move[0])
+	yield(get_tree().create_timer(1), "timeout")
+	click_grid_pos(move[1])
