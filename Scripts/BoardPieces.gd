@@ -14,6 +14,7 @@ var black_pieces = {}
 var all_pieces = {true: white_pieces, false: black_pieces}
 var pieces_grid: Array
 const BOARD_LETTERS = "abcdefgh"
+var eval := 0.0
 
 func init():
 	pieces_grid = BoardUtils.initialize_empty_grid()
@@ -23,7 +24,7 @@ func duplicate_board(boardPieces) -> void:
 	boardPieces.pieces_grid = BoardUtils.initialize_empty_grid()
 	for piece in get_pieces():
 		letter_to_piece[piece.prefix].instance()\
-		.init2(piece.is_white, boardPieces, piece.grid_pos).init()
+		.init().init2(piece.is_white, boardPieces, piece.grid_pos).init()
 
 func intialize_pieces() -> void:
 	var algebraic_pos: String
@@ -33,19 +34,19 @@ func intialize_pieces() -> void:
 	for letter in BOARD_LETTERS:
 		algebraic_pos = letter + str(2)
 		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos)
-		add_child(PAWN.instance().init2(true, self, grid_pos).init())
+		add_child(PAWN.instance().init().init2(true, self, grid_pos))
 		algebraic_pos = letter + str(7)
 		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(algebraic_pos)
-		add_child(PAWN.instance().init2(false, self, grid_pos).init())
+		add_child(PAWN.instance().init().init2(false, self, grid_pos))
 	
 	# Adding major pieces
 	var pieces := "Ra1 Nb1 Bc1 Qd1 Ke1 Bf1 Ng1 Rh1"
 	for piece in pieces.split(" "):
 		var node = letter_to_piece[piece[0]]
 		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(piece.right(1))
-		add_child(node.instance().init2(true, self, grid_pos).init())
+		add_child(node.instance().init().init2(true, self, grid_pos))
 		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE))
-		add_child(node.instance().init2(false, self, grid_pos).init())
+		add_child(node.instance().init().init2(false, self, grid_pos))
 
 func set_through_grid_pos(pos: Vector2, piece) -> void:
 	pieces_grid[pos.x][pos.y] = piece

@@ -19,17 +19,6 @@ func get_all_legal_moves(color: bool):
 
 var mm_node = {"move": null, "eval": 0}
 
-func evaluate_heuristic() -> float:
-	var white_value = 0
-	for piece in FBP.white_pieces.keys():
-		white_value += piece.value
-	
-	var black_value = 0
-	for piece in FBP.black_pieces.keys():
-		black_value += piece.value
-	
-	return float(white_value - black_value)
-
 var num_nodes_evaluated = 0
 func evaluate_MM_root(max_depth: int, maximising: bool) -> Array:
 	FBP = BP.duplicate()
@@ -58,7 +47,7 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
 		piece_to_move.place_on(legal_move[1])
 		
 		if curr_depth == max_depth:
-			eval = chance_of_success * evaluate_heuristic()
+			eval = chance_of_success * FBP.eval
 			evals_and_moves.append([eval, [legal_move]])
 		else:
 			var eval_and_moves = evaluate_MM(curr_depth+1, max_depth, !maximising)

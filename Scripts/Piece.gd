@@ -7,6 +7,8 @@ var grid_pos: Vector2 = INVALID_GRID_POS
 var is_white: bool
 var board: BoardPieces
 var value: int
+const HIGH_KING_VALUE := 1000.0
+var eval_value: float
 var prefix: String
 
 var white_piece
@@ -31,6 +33,11 @@ func init2(is_white: bool, board: BoardPieces, grid_pos: Vector2) -> Piece:
 	board.all_pieces[is_white][self] = true
 	position = SIZE*grid_pos
 	place_on(grid_pos)
+	if prefix == "K":
+		eval_value = HIGH_KING_VALUE
+	else:
+		eval_value = float(value)
+	assert(value != 0)
 	return self
 
 func update_color(sprite: Sprite) -> void:
@@ -72,11 +79,14 @@ func is_attack_successful(defender: Piece) -> Dictionary:
 	var roll: int = RNG.rng.randi_range(1, maximum)
 	return {"attack_success": roll > defender.value, "roll": roll}
 
+const COLOR_MULTIPLIER = {true: 1, false: -1}
 func die() -> void:
 	board.all_pieces[is_white].erase(self)
 	visible = false
+	board.eval -= (COLOR_MULTIPLIER[is_white] * eval_value)
 
 func revive() -> void:
 	board.set_through_grid_pos(grid_pos, self)
 	board.all_pieces[is_white][self] = true
 	visible = true
+	board.eval += (COLOR_MULTIPLIER[is_white] * eval_value)
