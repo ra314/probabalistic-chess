@@ -37,42 +37,73 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool, alpha: float
 	var evals_and_moves = []
 	var eval: int
 	var legal_moves = get_all_legal_moves(maximising)
+	var eval_if_kill_fails : float
+	
+	if curr_depth == max_depth:
+		eval_if_kill_fails = FBP.eval
+	else:
+		eval_if_kill_fails = evaluate_MM(curr_depth+1, max_depth, !maximising, alpha, beta)[0]
+	
 	for legal_move in legal_moves:
 		var killed_piece = FBP.pieces_grid.get(legal_move[1])
 		var chance_of_success := 1.0
 		var piece_to_move = FBP.pieces_grid[legal_move[0]]
+		
+		
 		if killed_piece != null:
 			killed_piece.die()
 			chance_of_success = piece_to_move.odds_of_successful_attack(killed_piece)
 		piece_to_move.place_on(legal_move[1])
 		
+		var pruned = false
 		if curr_depth == max_depth:
-			eval = chance_of_success * FBP.eval
+			eval = (chance_of_success * FBP.eval) + ((1-chance_of_success) * eval_if_kill_fails)
 			evals_and_moves.append([eval, [legal_move]])
 		else:
 			var eval_and_moves = evaluate_MM(curr_depth+1, max_depth, !maximising, alpha, beta)
-			eval_and_moves[1].append(legal_move)
-			eval_and_moves[0] *= chance_of_success
-			evals_and_moves.append(eval_and_moves)
+			if eval_and_moves == []:
+				pruned = true
+			else:
+				eval_and_moves[1].append(legal_move)
+				eval_and_moves[0] = (chance_of_success * eval_and_moves[0]) + ((1-chance_of_success) * eval_if_kill_fails)
+				evals_and_moves.append(eval_and_moves)
 		
 		# Reset any moves made
 		FBP.pieces_grid[legal_move[1]].place_on(legal_move[0])
 		if killed_piece != null:
 			killed_piece.revive()
 		
+		if pruned:
+			continue
+		
+		var latest_eval = evals_and_moves[len(evals_and_moves)-1][0]
 		if maximising:
-			alpha = max(alpha, evals_and_moves[len(evals_and_moves)-1][0])
-			if beta <= alpha:
+			if latest_eval >= beta:
+				return []
 				break
+			alpha = max(alpha, latest_eval)
 		else:
-			beta = min(beta, evals_and_moves[len(evals_and_moves)-1][0])
-			if beta <= alpha:
+			if latest_eval <= alpha:
+				return []
 				break
+			beta = min(beta, latest_eval)
 	
 	num_nodes_evaluated += len(legal_moves)
 	var best_eval = get_best_eval(evals_and_moves, maximising)
 	var best_evals_and_moves = get_best_evals_and_moves(evals_and_moves, best_eval)
+	
 	return RNG.select_random(best_evals_and_moves)
+
+func debug_print_eval_and_moves(eval_and_moves):
+	var print_str = ""
+	print_str += str(eval_and_moves[0]) + ": "
+	for move in eval_and_moves[1]:
+		print_str += BoardUtils.grid_pos_to_algebraic_pos(move[0])
+		print_str += "->"
+		print_str += BoardUtils.grid_pos_to_algebraic_pos(move[1])
+		print_str += " "
+	print_str += "\n"
+	print(print_str)
 
 func get_best_eval(evals_and_moves: Array, maximising: bool) -> float:
 	var best_eval
