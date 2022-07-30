@@ -38,9 +38,9 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
 	var eval: int
 	var legal_moves = get_all_legal_moves(maximising)
 	for legal_move in legal_moves:
-		var killed_piece = FBP.get_piece_from_grid_pos(legal_move[1])
+		var killed_piece = FBP.pieces_grid.get(legal_move[1])
 		var chance_of_success := 1.0
-		var piece_to_move = FBP.get_piece_from_grid_pos(legal_move[0])
+		var piece_to_move = FBP.pieces_grid[legal_move[0]]
 		if killed_piece != null:
 			killed_piece.die()
 			chance_of_success = piece_to_move.odds_of_successful_attack(killed_piece)
@@ -56,7 +56,7 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
 			evals_and_moves.append(eval_and_moves)
 		
 		# Reset any moves made
-		FBP.get_piece_from_grid_pos(legal_move[1]).place_on(legal_move[0])
+		FBP.pieces_grid[legal_move[1]].place_on(legal_move[0])
 		if killed_piece != null:
 			killed_piece.revive()
 	

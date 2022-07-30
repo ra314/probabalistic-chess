@@ -43,9 +43,9 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 	undo_highlight()
 	
 	if was_pos_previously_available_for_movement(grid_pos):
-		var prev_selected_piece = BP.get_piece_from_grid_pos(prev_selected_tile_pos)
+		var prev_selected_piece = BP.pieces_grid[prev_selected_tile_pos]
 		if BP.does_pos_have_enemy(grid_pos, prev_selected_piece):
-			var enemy = BP.get_piece_from_grid_pos(grid_pos)
+			var enemy = BP.pieces_grid[grid_pos]
 			var retval = prev_selected_piece.is_attack_successful(enemy)
 			update_chance(prev_selected_piece, enemy, retval["roll"])
 			if retval["attack_success"]:
@@ -68,7 +68,7 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 		prev_selected_tile_pos = grid_pos
 		
 		# Highlight the possible movement tiles
-		for legal_move in BP.get_piece_from_grid_pos(grid_pos).generate_legal_moves():
+		for legal_move in BP.pieces_grid[grid_pos].generate_legal_moves():
 			var tile: Tile = get_tile_from_grid_pos(legal_move)
 			tile.highlight_movement()
 			highlighted_movement_tiles.append(tile)

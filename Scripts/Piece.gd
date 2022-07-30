@@ -10,6 +10,7 @@ var value: int
 const HIGH_KING_VALUE := 1000.0
 var eval_value: float
 var prefix: String
+var cached_legal_moves = []
 
 var white_piece
 var black_piece
@@ -52,7 +53,7 @@ func promote_self_to_queen() -> void:
 	new_queen.board = board
 	board.add_child(new_queen)
 	# This also wipes the pawn from the current position
-	board.set_through_grid_pos(grid_pos, new_queen)
+	board.pieces_grid[grid_pos] = new_queen
 	# Get rid of the pawn visually and from memory
 	visible = false
 	die()
@@ -61,8 +62,8 @@ var PAWN := load("res://Scripts/Pawn.gd")
 func place_on(new_grid_pos: Vector2) -> void:
 	if grid_pos != INVALID_GRID_POS:
 		# Wipe the old position
-		board.set_through_grid_pos(grid_pos, null)
-	board.set_through_grid_pos(new_grid_pos, self)
+		board.pieces_grid.erase(grid_pos)
+	board.pieces_grid[new_grid_pos] = self
 	grid_pos = new_grid_pos
 	position = SIZE * grid_pos
 	
@@ -86,7 +87,11 @@ func die() -> void:
 	board.eval -= (COLOR_MULTIPLIER[is_white] * eval_value)
 
 func revive() -> void:
-	board.set_through_grid_pos(grid_pos, self)
+	board.pieces_grid[grid_pos] = self
 	board.all_pieces[is_white][self] = true
 	visible = true
 	board.eval += (COLOR_MULTIPLIER[is_white] * eval_value)
+
+# This function should never be called. Intended to be overriden.
+func generate_legal_moves():
+	assert(false)

@@ -12,16 +12,14 @@ var letter_to_piece := {"R": ROOK, "B": BISHOP, "N": KNIGHT, "Q": QUEEN, "K": KI
 var white_pieces = {}
 var black_pieces = {}
 var all_pieces = {true: white_pieces, false: black_pieces}
-var pieces_grid: Array
+var pieces_grid := {}
 const BOARD_LETTERS = "abcdefgh"
 var eval := 0.0
 
 func init():
-	pieces_grid = BoardUtils.initialize_empty_grid()
 	intialize_pieces()
 
 func duplicate_board(boardPieces) -> void:
-	boardPieces.pieces_grid = BoardUtils.initialize_empty_grid()
 	for piece in get_pieces():
 		letter_to_piece[piece.prefix].instance()\
 		.init().init2(piece.is_white, boardPieces, piece.grid_pos).init()
@@ -47,28 +45,26 @@ func intialize_pieces() -> void:
 		add_child(node.instance().init().init2(true, self, grid_pos))
 		grid_pos = BoardUtils.algebraic_pos_to_grid_pos(piece[1] + str(BoardUtils.BOARD_SIZE))
 		add_child(node.instance().init().init2(false, self, grid_pos))
-
-func set_through_grid_pos(pos: Vector2, piece) -> void:
-	pieces_grid[pos.x][pos.y] = piece
-
-func get_piece_from_grid_pos(pos: Vector2):
-	return pieces_grid[pos[0]][pos[1]]
+	
+	# Create initial cache of legal moves
+	for piece in get_pieces():
+		piece.cached_legal_moves = piece.generate_legal_moves()
 
 func get_piece_from_algebraic_pos(pos: String):
 	var grid_pos := BoardUtils.algebraic_pos_to_grid_pos(pos)
-	return get_piece_from_grid_pos(grid_pos)
+	return pieces_grid[grid_pos]
 
 func is_pos_empty(pos: Vector2) -> bool:
-	return get_piece_from_grid_pos(pos) == null
+	return !pieces_grid.has(pos)
 
 func does_pos_have_enemy(pos: Vector2, piece) -> bool:
 	if !is_pos_empty(pos):
-		return get_piece_from_grid_pos(pos).is_white != piece.is_white
+		return pieces_grid[pos].is_white != piece.is_white
 	return false
 
 func does_pos_have_ally(pos: Vector2, piece) -> bool:
 	if !is_pos_empty(pos):
-		return get_piece_from_grid_pos(pos).is_white == piece.is_white
+		return pieces_grid[pos].is_white == piece.is_white
 	return false
 
 func get_pieces() -> Array:
