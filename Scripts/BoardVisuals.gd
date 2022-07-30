@@ -142,7 +142,7 @@ func update_chance(attacker: Piece, defender: Piece, roll: int) -> void:
 
 # CURRENTLY ONLY MAKES SUGGESTIONS FOR BLACK
 func get_ai_suggestion():
-	var moves = BAI.evaluate_MM_root(4, false)[1]
+	var moves = BAI.evaluate_MM_root(6, false)[1]
 	var move = moves[len(moves)-1]
 	click_grid_pos(move[0])
 	yield(get_tree().create_timer(1), "timeout")

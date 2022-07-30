@@ -24,7 +24,7 @@ func evaluate_MM_root(max_depth: int, maximising: bool) -> Array:
 	FBP = BP.duplicate()
 	BP.duplicate_board(FBP)
 	
-	var eval = evaluate_MM(1, max_depth, maximising)
+	var eval = evaluate_MM(1, max_depth, maximising, -INF, +INF)
 	print("Minimax eval is " + str(eval))
 	print(str(num_nodes_evaluated) + " nodes were evaluated")
 	num_nodes_evaluated = 0
@@ -33,7 +33,7 @@ func evaluate_MM_root(max_depth: int, maximising: bool) -> Array:
 	return eval
 
 # Assumes that the move in the node has been applied and is the ccurent state of FBP
-func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
+func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool, alpha: float, beta: float) -> Array:
 	var evals_and_moves = []
 	var eval: int
 	var legal_moves = get_all_legal_moves(maximising)
@@ -50,7 +50,7 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
 			eval = chance_of_success * FBP.eval
 			evals_and_moves.append([eval, [legal_move]])
 		else:
-			var eval_and_moves = evaluate_MM(curr_depth+1, max_depth, !maximising)
+			var eval_and_moves = evaluate_MM(curr_depth+1, max_depth, !maximising, alpha, beta)
 			eval_and_moves[1].append(legal_move)
 			eval_and_moves[0] *= chance_of_success
 			evals_and_moves.append(eval_and_moves)
@@ -59,6 +59,15 @@ func evaluate_MM(curr_depth: int, max_depth: int, maximising: bool) -> Array:
 		FBP.pieces_grid[legal_move[1]].place_on(legal_move[0])
 		if killed_piece != null:
 			killed_piece.revive()
+		
+		if maximising:
+			alpha = max(alpha, evals_and_moves[len(evals_and_moves)-1][0])
+			if beta <= alpha:
+				break
+		else:
+			beta = min(beta, evals_and_moves[len(evals_and_moves)-1][0])
+			if beta <= alpha:
+				break
 	
 	num_nodes_evaluated += len(legal_moves)
 	var best_eval = get_best_eval(evals_and_moves, maximising)
