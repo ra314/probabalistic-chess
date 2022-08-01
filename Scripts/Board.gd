@@ -10,6 +10,9 @@ func _ready():
 	$Pieces.init()
 	$Visuals.init()
 	RNG.init()
+	$Visuals/Reset.connect("button_up", self, "reset")
 
+func reset():
+	get_tree().reload_current_scene() 
 
 

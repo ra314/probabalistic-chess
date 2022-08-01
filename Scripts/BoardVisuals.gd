@@ -1,4 +1,4 @@
-extends Node
+extends Node2D
 
 const tile_color = Color( 0.47451, 0.282353, 0.223529, 1 )
 const tile_color_alternate = Color( 0.364706, 0.196078, 0.192157, 1 )
@@ -13,6 +13,12 @@ func _ready():
 	BP = get_parent().get_node("Pieces")
 	BAI = get_parent().get_node("AI")
 	$Button.connect("button_up", self, "get_ai_suggestion")
+	$"Help Button".connect("button_up", self, "toggle_help_menu")
+
+func toggle_help_menu():
+	B.get_node("Help Menu").visible = true
+	BP.visible = false
+	visible = false
 
 func init() -> void:
 	tiles_grid = BoardUtils.initialize_empty_grid()
@@ -51,6 +57,8 @@ func click_grid_pos(grid_pos: Vector2) -> void:
 			if retval["attack_success"]:
 				enemy.die()
 				prev_selected_piece.place_on(grid_pos)
+				if enemy.prefix == "K":
+					launch_end_screen(!enemy.is_white)
 		else:
 			prev_selected_piece.place_on(grid_pos)
 		highlighted_movement_tiles = []
@@ -140,13 +148,30 @@ func update_chance(attacker: Piece, defender: Piece, roll: int) -> void:
 	
 	odds.text = "%s:%s" % [attacker.value, defender.value]
 
+const bool_to_color = {true: "White", false: "Black"}
+func launch_end_screen(winner_color: bool) -> void:
+	$Label.text = bool_to_color[winner_color] + " wins!"
+	$Label.visible = true
+
+var num_black_moves = 0
 # CURRENTLY ONLY MAKES SUGGESTIONS FOR BLACK
 func get_ai_suggestion():
-	BAI.evaluate_MM_root(4, false)
-	return
+	num_black_moves += 1
 	
-	var moves = BAI.evaluate_MM_root(4, false)[1]
-	var move = moves[len(moves)-1]
+	var move
+	
+	# Hard code the first few moves
+	if num_black_moves <= 2:
+		var hard_coded_move
+		match num_black_moves:
+			1:
+				hard_coded_move = "e7->e5"
+			2:
+				hard_coded_move = "d8->f6"
+		move = BoardUtils.algebraic_move_to_grid_move(hard_coded_move)
+	else:
+		var moves = BAI.evaluate_MM_root(4, false)[1]
+		move = moves[len(moves)-1]
 	click_grid_pos(move[0])
 	yield(get_tree().create_timer(1), "timeout")
 	click_grid_pos(move[1])

@@ -11,6 +11,11 @@ static func initialize_empty_grid() -> Array:
 			grid[x].append(null)
 	return grid
 
+static func algebraic_move_to_grid_move(move:String) -> Array:
+	var pos1 = algebraic_pos_to_grid_pos(move.substr(0,2))
+	var pos2 = algebraic_pos_to_grid_pos(move.substr(4,2))
+	return [pos1, pos2]
+
 static func algebraic_pos_to_grid_pos(pos: String) -> Vector2:
 	assert(len(pos)==2)
 	assert(pos[1].is_valid_integer())
