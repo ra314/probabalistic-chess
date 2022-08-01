@@ -68,9 +68,9 @@ func place_on(new_grid_pos: Vector2) -> void:
 	position = SIZE * grid_pos
 	
 	# Pawn promotion
-	if prefix == "P":
-		if PAWN.is_on_promotion_square(grid_pos.y, is_white):
-			promote_self_to_queen()
+#	if prefix == "P":
+#		if PAWN.is_on_promotion_square(grid_pos.y, is_white):
+#			promote_self_to_queen()
 
 func odds_of_successful_attack(defender: Piece) -> float:
 	return float(value)/float(defender.value + value)
