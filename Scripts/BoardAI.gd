@@ -69,6 +69,7 @@ func evaluate_MM4(depth: int, maximising: bool, alpha: float, beta: float) -> Ar
 		best_eval = INF
 	var best_moves = null
 	
+	var eval_if_capture_fails = evaluate_MM4(depth-1, !maximising, alpha, beta)[0]
 	for legal_move in order_moves(get_all_legal_moves(maximising)):
 		# Playing the proposed move
 		var killed_piece = FBP.pieces_grid.get(legal_move[1])
@@ -81,12 +82,15 @@ func evaluate_MM4(depth: int, maximising: bool, alpha: float, beta: float) -> Ar
 		
 		# Evaluation
 		var eval_and_moves = evaluate_MM4(depth-1, !maximising, alpha, beta)
-		var eval = eval_and_moves[0]
-		var moves = eval_and_moves[1]
 		
-		# TODO
-		# Counter the eval given a capture
-		# with the eval given that the current play makes not move due to a failed capture
+		# Reset any moves made
+		FBP.pieces_grid[legal_move[1]].place_on(legal_move[0])
+		if killed_piece != null:
+			killed_piece.revive()
+		
+		# Expectiminimax
+		var eval = (eval_and_moves[0] * chance_of_success) + (eval_if_capture_fails * (1-chance_of_success))
+		var moves = eval_and_moves[1]
 		
 		# Updating alpha, beta
 		if maximising:
@@ -94,18 +98,13 @@ func evaluate_MM4(depth: int, maximising: bool, alpha: float, beta: float) -> Ar
 		else:
 			beta = min(beta, eval)
 		
-		# Reset any moves made
-		FBP.pieces_grid[legal_move[1]].place_on(legal_move[0])
-		if killed_piece != null:
-			killed_piece.revive()
-		
 		# Stop evaluation since the opponent won't pick this branch
 		if maximising:
 			if eval >= beta:
-				return [INF, null]
+				return [eval, [legal_move]]
 		else:
 			if eval <= alpha:
-				return [-INF, null]
+				return [eval, [legal_move]]
 		
 		if (maximising and (eval > best_eval)) or (!maximising and (eval < best_eval)):
 				best_eval = eval
