@@ -189,7 +189,8 @@ Capture is probabilistic and the odds are the relative value
 of the pieces.
 Pawn = 1, Knight&Bishop = 3, King = 4, Rook = 5, Queen = 9
 If a Queen attempts to capture a Bishop the odds of success
-are: 9/(9+3) = 9/12 = 75%."
+are: 9/(9+3) = 9/12 = 75%.
+There is no check, castling, pawn promotion, or en passent."
 
 [node name="Back" type="Button" parent="Help Menu"]
 margin_left = 1510.0
